@@ -1,0 +1,15 @@
+; OpenAPI Path Templating ABNF syntax
+path-template       = slash *( ( path-literal / template-expression ) slash ) [ path-literal / template-expression ]
+slash               = "/"
+path-literal        = 1*( unreserved / pct-encoded / sub-delims-no-slash / ":" / "@" )
+template-expression = "{" param-name "}"
+param-name          = 1*( unreserved / pct-encoded / sub-delims-no-slash / ":" / "@" )
+
+; Characters definitions (from RFC 3986)
+unreserved          = ALPHA / DIGIT / "-" / "." / "_" / "~"
+pct-encoded         = "%" HEXDIG HEXDIG
+sub-delims-no-slash = "!" / "$" / "&" / "'" / "(" / ")"
+                    / "*" / "+" / "," / ";"
+ALPHA               = %x41-5A / %x61-7A   ; A-Z / a-z
+DIGIT               = %x30-39            ; 0-9
+HEXDIG              = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
