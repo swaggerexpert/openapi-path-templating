@@ -49,6 +49,6 @@
     "@commitlint/config-conventional": "=18.4.3",
     "chai": "=4.3.10",
     "husky": "=8.0.3",
-    "mocha": "=10.1.0"
+    "mocha": "=10.2.0"
   }
 }
