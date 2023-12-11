@@ -22,6 +22,7 @@ Path Templating defined in following OpenAPI specification versions:
     - [Extraction](#extraction)
     - [Parsing](#parsing)
     - [Validation](#validation)
+    - [Resolution](#resolution)
     - [Grammar](#grammar)
 - [More about OpenAPI Path Templating](#more-about-openapi-path-templating)
 - [License](#license)
@@ -162,9 +163,7 @@ After running the above code, **xml** variable has the following content:
 
 #### Validation
 
-Validating a Path Templating is as simple as importing the **test** function
-and calling it.
-
+Validating a Path Templating is as simple as importing the **test** function and calling it.
 
 
 ```js
@@ -177,6 +176,15 @@ test('/pets'); // => false
 > [!IMPORTANT]
 > Note that Relative URIs without path template expressions (like "/pets") always returns `false`.
 
+#### Resolution
+
+Resolving a Path Templating is as simple as importing the **resolve** function and calling it.
+
+```js
+import { resolve } from 'openapi-path-templating';
+
+resolve('/pets/{petId}', { petId: 3 }); // => "/pets/3"
+```
 
 #### Grammar
 
