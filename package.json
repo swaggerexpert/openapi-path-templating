@@ -1,6 +1,6 @@
 {
   "name": "openapi-path-templating",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "OpenAPI Path Templating parser, validator and resolver.",
   "exports": {
     ".": "./src/index.js",
