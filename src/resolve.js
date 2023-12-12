@@ -18,9 +18,10 @@ const encodePathComponent = (component) => {
 }
 
 const resolve = (pathTemplate, parameters = {}) => {
-  if (!test(pathTemplate)) return pathTemplate;
-
   const parseResult = parse(pathTemplate);
+
+  if (!parseResult.result.success) return pathTemplate;
+
   const parts = [];
   parseResult.ast.translate(parts);
   const resolvedPats = parts
