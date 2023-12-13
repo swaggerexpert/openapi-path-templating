@@ -8,7 +8,7 @@
     "./path-templating.bnf": "./src/path-templating.bnf"
   },
   "scripts": {
-    "grammar:compile": "./node_modules/apg-js/bin/apg.sh --in=./src/path-templating.bnf --out=./src/path-templating.js && cd ./src && mv path-templating.js path-templating.cjs",
+    "grammar:compile": "./node_modules/apg-js/bin/apg.sh --lite --in=./src/path-templating.bnf --out=./src/path-templating.js && cd ./src",
     "test": "mocha"
   },
   "engines": {
@@ -42,9 +42,10 @@
     "SECURITY.md"
   ],
   "dependencies": {
-    "apg-js": "^4.3.0"
+    "apg-lite": "^1.0.2"
   },
   "devDependencies": {
+    "apg-js": "^4.3.0",
     "@commitlint/cli": "=18.4.3",
     "@commitlint/config-conventional": "=18.4.3",
     "chai": "=4.3.10",
