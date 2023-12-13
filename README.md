@@ -38,13 +38,6 @@ You can install `openapi-path-templating` using `npm`:
  $ npm install openapi-path-templating
 ```
 
-Given that `openapi-path-templating` is a [pure ESM package](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c)
-you can also install it directly from GitHub.
-
-```sh
- $ npm install github:char0n/openapi-path-templating
-```
-
 ### Usage
 
 `openapi-path-templating` currently supports **parsing**, **validation** and **resolution**.
