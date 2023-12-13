@@ -1,4 +1,3 @@
-import test from './test.js'
 import parse from './parse/index.js';
 
 const isEncoded = (value) => {

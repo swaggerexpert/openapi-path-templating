@@ -1,7 +1,6 @@
-import AST from 'apg-js/src/apg-lib/ast.js';
-import Parser from 'apg-js/src/apg-lib/parser.js';
+import { Ast as AST, Parser } from 'apg-lite';
 
-import Grammar from '../path-templating.cjs';
+import Grammar from '../path-templating.js';
 import slashCallback from './callbacks/slash.js'
 import pathTemplateCallback from './callbacks/path-template.js'
 import pathLiteralCallback from './callbacks/path-literal.js'
