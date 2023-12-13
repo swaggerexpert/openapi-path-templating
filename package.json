@@ -2,8 +2,12 @@
   "name": "openapi-path-templating",
   "version": "1.1.0",
   "description": "OpenAPI Path Templating parser, validator and resolver.",
+  "types": "./types/index.d.ts",
   "exports": {
-    ".": "./src/index.js",
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./src/index.js"
+    },
     "./package.json": "./package.json",
     "./path-templating.bnf": "./src/path-templating.bnf"
   },
@@ -35,6 +39,7 @@
   "homepage": "https://github.com/char0n/openapi-path-templating#readme",
   "files": [
     "src/",
+    "types/",
     "LICENSE",
     "NOTICE",
     "package.json",
