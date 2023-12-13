@@ -6,13 +6,26 @@
   "exports": {
     ".": {
       "types": "./types/index.d.ts",
-      "import": "./src/index.js"
+      "import": "./es/index.mjs",
+      "require": "./cjs/index.cjs"
     },
     "./package.json": "./package.json",
     "./path-templating.bnf": "./src/path-templating.bnf"
   },
+  "imports": {
+    "#apg-lite": {
+      "import": "apg-lite",
+      "require": "./cjs/apg-lite.cjs",
+      "default": "apg-lite"
+    }
+  },
   "scripts": {
+    "prepublishOnly": "npm run build",
     "grammar:compile": "./node_modules/apg-js/bin/apg.sh --lite --in=./src/path-templating.bnf --out=./src/path-templating.js && cd ./src",
+    "build": "npm run grammar:compile && npm run build:es && npm run build:cjs && npm run build:cjs:apg-lite",
+    "build:es": "cross-env BABEL_ENV=es babel src --out-dir es --extensions '.js' --out-file-extension '.mjs'",
+    "build:cjs": "cross-env BABEL_ENV=cjs babel src --out-dir cjs --extensions '.js' --out-file-extension '.cjs'",
+    "build:cjs:apg-lite": "cross-env BABEL_ENV=cjs babel node_modules/apg-lite/lib/parser.js --out-file ./cjs/apg-lite.cjs",
     "test": "mocha"
   },
   "engines": {
@@ -38,7 +51,8 @@
   },
   "homepage": "https://github.com/char0n/openapi-path-templating#readme",
   "files": [
-    "src/",
+    "es/",
+    "cjs/",
     "types/",
     "LICENSE",
     "NOTICE",
@@ -51,8 +65,12 @@
   },
   "devDependencies": {
     "apg-js": "^4.3.0",
+    "@babel/cli": "=7.23.4",
+    "@babel/core": "=7.23.6",
+    "@babel/preset-env": "=7.23.6",
     "@commitlint/cli": "=18.4.3",
     "@commitlint/config-conventional": "=18.4.3",
+    "cross-env": "^7.0.3",
     "chai": "=4.3.10",
     "husky": "=8.0.3",
     "mocha": "=10.2.0"
