@@ -163,11 +163,9 @@ Validating a Path Templating is as simple as importing the **test** function and
 import { test } from 'openapi-path-templating';
 
 test('/pets/{petId}'); // => true
-test('/pets'); // => false
+test('/pets'); // => true
+test('/pets', { strict: true }); // => false (doesn't contain template-expression)
 ```
-
-> [!IMPORTANT]
-> Note that Relative URIs without path template expressions (like "/pets") always returns `false`.
 
 #### Resolution
 
