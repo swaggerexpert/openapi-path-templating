@@ -42,7 +42,7 @@ You can install `openapi-path-templating` using `npm`:
 
 `openapi-path-templating` currently supports **parsing**, **validation** and **resolution**.
 Both parser and validator are based on a superset of [ABNF](https://www.rfc-editor.org/rfc/rfc5234) ([SABNF](https://cs.github.com/ldthomas/apg-js2/blob/master/SABNF.md))
-and use [apg-js](https://github.com/ldthomas/apg-js) parser generator.
+and use [apg-lite](https://github.com/ldthomas/apg-lite) parser generator.
 
 #### Parsing
 
