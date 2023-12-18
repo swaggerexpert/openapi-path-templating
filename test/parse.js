@@ -1,11 +1,11 @@
 import { assert } from 'chai';
 
-import { parse } from '../src/index.js'
+import { parse } from '../src/index.js';
 
 describe('parse', function () {
   context('given valid source string', function () {
     context('/pets/{petId}', function () {
-      specify('should parse and translate', function () {
+      specify.only('should parse and translate', function () {
         const parseResult = parse('/pets/{petId}');
 
         const parts = [];
@@ -13,11 +13,120 @@ describe('parse', function () {
 
         assert.isTrue(parseResult.result.success);
         assert.deepEqual(parts, [
-          [ 'path-template', '/pets/{petId}' ],
-          [ 'slash', '/' ],
-          [ 'path-literal', 'pets' ],
-          [ 'slash', '/' ],
-          [ 'template-expression', '{petId}' ]
+          ['path-template', '/pets/{petId}'],
+          ['path', '/pets/{petId}'],
+          ['slash', '/'],
+          ['path-literal', 'pets'],
+          ['slash', '/'],
+          ['template-expression', '{petId}'],
+          ['template-expression-param-name', 'petId'],
+        ]);
+      });
+    });
+
+    context('/{petId}', function () {
+      specify('should parse and translate', function () {
+        const parseResult = parse('/{petId}');
+
+        const parts = [];
+        parseResult.ast.translate(parts);
+
+        assert.isTrue(parseResult.result.success);
+        assert.deepEqual(parts, [
+          ['path-template', '/{petId}'],
+          ['path', '/{petId}'],
+          ['slash', '/'],
+          ['template-expression', '{petId}'],
+          ['template-expression-param-name', 'petId'],
+        ]);
+      });
+    });
+
+    context('/a{petId}', function () {
+      specify('should parse and translate', function () {
+        const parseResult = parse('/a{petId}');
+
+        const parts = [];
+        parseResult.ast.translate(parts);
+
+        assert.isTrue(parseResult.result.success);
+        assert.deepEqual(parts, [
+          ['path-template', '/a{petId}'],
+          ['path', '/a{petId}'],
+          ['slash', '/'],
+          ['path-literal', 'a'],
+          ['template-expression', '{petId}'],
+          ['template-expression-param-name', 'petId'],
+        ]);
+      });
+    });
+
+    context('/pets?offset=0&limit=10', function () {
+      specify('should parse and translate', function () {
+        const parseResult = parse('/pets?offset=0&limit=10');
+
+        const parts = [];
+        parseResult.ast.translate(parts);
+
+        assert.isTrue(parseResult.result.success);
+        assert.deepEqual(parts, [
+          ['path-template', '/pets?offset=0&limit=10'],
+          ['path', '/pets'],
+          ['slash', '/'],
+          ['path-literal', 'pets'],
+          ['query-marker', '?'],
+          ['query', 'offset=0&limit=10'],
+          ['query-literal', 'offset=0&limit=10'],
+        ]);
+      });
+    });
+
+    context('/pets?offset{offset}limit={limit}', function () {
+      specify('should parse and translate', function () {
+        const parseResult = parse('/pets?offset{offset}limit={limit}');
+
+        const parts = [];
+        parseResult.ast.translate(parts);
+
+        assert.isTrue(parseResult.result.success);
+        assert.deepEqual(parts, [
+          ['path-template', '/pets?offset{offset}limit={limit}'],
+          ['path', '/pets'],
+          ['slash', '/'],
+          ['path-literal', 'pets'],
+          ['query-marker', '?'],
+          ['query', 'offset{offset}limit={limit}'],
+          ['query-literal', 'offset'],
+          ['template-expression', '{offset}'],
+          ['template-expression-param-name', 'offset'],
+          ['query-literal', 'limit='],
+          ['template-expression', '{limit}'],
+          ['template-expression-param-name', 'limit'],
+        ]);
+      });
+    });
+
+    context('/pets?offset={offset}&limit={limit}', function () {
+      specify('should parse and translate', function () {
+        const parseResult = parse('/pets?offset={offset}&limit={limit}');
+
+        const parts = [];
+        parseResult.ast.translate(parts);
+
+        assert.isTrue(parseResult.result.success);
+        assert.deepEqual(parts, [
+          ['path-template', '/pets?offset={offset}&limit={limit}'],
+          ['path', '/pets'],
+          ['slash', '/'],
+          ['path-literal', 'pets'],
+          ['query-marker', '?'],
+          ['query', 'offset={offset}&limit={limit}'],
+          ['query-literal', 'offset='],
+          ['template-expression', '{offset}'],
+          ['template-expression-param-name', 'offset'],
+          ['query-literal', '&limit='],
+          ['template-expression', '{limit}'],
+          ['template-expression-param-name', 'limit'],
         ]);
       });
     });
@@ -31,11 +140,12 @@ describe('parse', function () {
 
         assert.isTrue(parseResult.result.success);
         assert.deepEqual(parts, [
-          [ 'path-template', '/pets/mine' ],
-          [ 'slash', '/' ],
-          [ 'path-literal', 'pets' ],
-          [ 'slash', '/' ],
-          [ 'path-literal', 'mine' ],
+          ['path-template', '/pets/mine'],
+          ['path', '/pets/mine'],
+          ['slash', '/'],
+          ['path-literal', 'pets'],
+          ['slash', '/'],
+          ['path-literal', 'mine'],
         ]);
       });
     });
@@ -49,8 +159,9 @@ describe('parse', function () {
 
         assert.isTrue(parseResult.result.success);
         assert.deepEqual(parts, [
-          [ 'path-template', '/' ],
-          [ 'slash', '/' ],
+          ['path-template', '/'],
+          ['path', '/'],
+          ['slash', '/'],
         ]);
       });
     });

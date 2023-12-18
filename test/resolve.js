@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 
-import { resolve } from '../src/index.js'
+import { resolve } from '../src/index.js';
 
 describe('resolve', function () {
   it('should resolve path template with parameter', function () {
@@ -34,14 +34,20 @@ describe('resolve', function () {
   });
 
   it('should do nothing on missing parameter', function () {
-    const result = resolve('/pets/{petId}');
+    const result = resolve('/pets/{petId}?limit={limit}');
 
-    assert.equal(result, '/pets/{petId}');
+    assert.equal(result, '/pets/{petId}?limit={limit}');
   });
 
   it('should resolve path template with non-string parameter', function () {
     const result = resolve('/pets/{petId}', { petId: 1 });
 
     assert.equal(result, '/pets/1');
+  });
+
+  it('should resolve path template with query string template expressions', function () {
+    const result = resolve('/pets?offset={offset}&limit={limit}', { offset: 0, limit: 10 });
+
+    assert.equal(result, '/pets?offset=0&limit=10');
   });
 });
