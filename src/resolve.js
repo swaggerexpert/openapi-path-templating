@@ -6,15 +6,23 @@ const isEncoded = (value) => {
   } catch (e) {
     return false;
   }
-}
+};
 
 const encodePathComponent = (component) => {
   if (isEncoded(component)) {
     return component;
   }
 
-  return encodeURIComponent(component)
-}
+  return encodeURIComponent(component);
+};
+
+const significanTypes = [
+  'slash',
+  'path-literal',
+  'query-marker',
+  'query-literal',
+  'template-expression-param-name',
+];
 
 const resolve = (pathTemplate, parameters = {}) => {
   const parseResult = parse(pathTemplate);
@@ -22,22 +30,22 @@ const resolve = (pathTemplate, parameters = {}) => {
   if (!parseResult.result.success) return pathTemplate;
 
   const parts = [];
-  parseResult.ast.translate(parts);
-  const resolvedPats = parts
-    .filter(([type]) => ['slash', 'path-literal', 'template-expression'].includes(type))
-    .map(([type, value]) => {
-      if (type === 'template-expression') {
-        const parameterName = value.slice(1, -1); // remove braces
 
-        return Object.hasOwn(parameters, parameterName)
-          ? encodePathComponent(parameters[parameterName])
-          : value;
+  parseResult.ast.translate(parts);
+
+  const resolvedParts = parts
+    .filter(([type]) => significanTypes.includes(type))
+    .map(([type, value]) => {
+      if (type === 'template-expression-param-name') {
+        return Object.hasOwn(parameters, value)
+          ? encodePathComponent(parameters[value])
+          : `{${value}}`;
       }
 
       return value;
     });
 
-  return resolvedPats.join('');
+  return resolvedParts.join('');
 };
 
 export default resolve;

@@ -63,34 +63,34 @@ parseResult.result.success; // => true
   result: {
     success: true,
     state: 101,
+    stateName: 'MATCH',
     length: 13,
     matched: 13,
     maxMatched: 13,
-    maxTreeDepth: 15,
-    nodeHits: 279,
-    inputLength: 13,
-    subBegin: 0,
-    subEnd: 13,
-    subLength: 13
+    maxTreeDepth: 18,
+    nodeHits: 324
   },
-  ast: exportsAst {
+  ast: fnast {
     callbacks: [
       'path-template': [Function: pathTemplate],
+      path: [Function: path],
+      query: [Function: query],
+      'query-literal': [Function: queryLiteral],
+      'query-marker': [Function: queryMarker],
       slash: [Function: slash],
       'path-literal': [Function: pathLiteral],
-      'template-expression': [Function: templateExpression]
+      'template-expression': [Function: templateExpression],
+      'template-expression-param-name': [Function: templateExpressionParamName]
     ],
-    astObject: 'astObject',
-    init: [Function: init],
-    ruleDefined: [Function: ruleDefined],
-    udtDefined: [Function: udtDefined],
-    down: [Function: down],
-    up: [Function: up],
-    translate: [Function: translate],
-    setLength: [Function: setLength],
-    getLength: [Function: getLength],
-    toXml: [Function: toSml],
-    phrases: [Function: phrases]
+    init: [Function (anonymous)],
+    ruleDefined: [Function (anonymous)],
+    udtDefined: [Function (anonymous)],
+    down: [Function (anonymous)],
+    up: [Function (anonymous)],
+    translate: [Function (anonymous)],
+    setLength: [Function (anonymous)],
+    getLength: [Function (anonymous)],
+    toXml: [Function (anonymous)]
   }
 }
 ```
@@ -131,23 +131,29 @@ After running the above code, **xml** variable has the following content:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
-<root nodes="5" characters="13">
-  <!-- input string, decimal integer character codes -->
-  47,112,101,116,115,47,123,112,101,116,73,100,125
+<root nodes="7" characters="13">
+  <!-- input string -->
+  /pets/{petId}
   <node name="path-template" index="0" length="13">
-    47,112,101,116,115,47,123,112,101,116,73,100,125
-    <node name="slash" index="0" length="1">
-      47
-    </node><!-- name="slash" -->
-    <node name="path-literal" index="1" length="4">
-      112,101,116,115
-    </node><!-- name="path-literal" -->
-    <node name="slash" index="5" length="1">
-      47
-    </node><!-- name="slash" -->
-    <node name="template-expression" index="6" length="7">
-      123,112,101,116,73,100,125
-    </node><!-- name="template-expression" -->
+    /pets/{petId}
+    <node name="path" index="0" length="13">
+      /pets/{petId}
+      <node name="slash" index="0" length="1">
+        /
+      </node><!-- name="slash" -->
+      <node name="path-literal" index="1" length="4">
+        pets
+      </node><!-- name="path-literal" -->
+      <node name="slash" index="5" length="1">
+        /
+      </node><!-- name="slash" -->
+      <node name="template-expression" index="6" length="7">
+        {petId}
+        <node name="template-expression-param-name" index="7" length="5">
+          petId
+        </node><!-- name="template-expression-param-name" -->
+      </node><!-- name="template-expression" -->
+    </node><!-- name="path" -->
   </node><!-- name="path-template" -->
 </root>
 ```
@@ -163,6 +169,7 @@ Validating a Path Templating is as simple as importing the **test** function and
 import { test } from 'openapi-path-templating';
 
 test('/pets/{petId}'); // => true
+test('/a{petId}'); // => true
 test('/pets'); // => true
 test('/pets', { strict: true }); // => false (doesn't contain template-expression)
 ```
@@ -205,15 +212,22 @@ The Path Templating is defined by the following [ABNF](https://tools.ietf.org/ht
 
 ```abnf
 ; OpenAPI Path Templating ABNF syntax
-path-template       = slash *( ( path-literal / template-expression ) slash ) [ path-literal / template-expression ]
-slash               = "/"
-path-literal        = 1*( unreserved / pct-encoded / sub-delims-no-slash / ":" / "@" )
-template-expression = "{" param-name "}"
-param-name          = 1*( unreserved / pct-encoded / sub-delims-no-slash / ":" / "@" )
+path-template                  = path [ query-marker query ]
+path                           = slash *( path-segment slash ) [ path-segment ]
+path-segment                   = 1*( path-literal / template-expression )
+query                          = *( query-literal / template-expression )
+query-literal                  = 1*( unreserved / pct-encoded / sub-delims / ":" / "@" / "/" / "?" / "&" / "=" )
+query-marker                   = "?"
+slash                          = "/"
+path-literal                   = 1*( unreserved / pct-encoded / sub-delims-no-slash / ":" / "@" )
+template-expression            = "{" template-expression-param-name "}"
+template-expression-param-name = 1*( unreserved / pct-encoded / sub-delims-no-slash / ":" / "@" )
 
 ; Characters definitions (from RFC 3986)
 unreserved          = ALPHA / DIGIT / "-" / "." / "_" / "~"
 pct-encoded         = "%" HEXDIG HEXDIG
+sub-delims          = "!" / "$" / "&" / "'" / "(" / ")"
+                    / "*" / "+" / "," / ";" / "="
 sub-delims-no-slash = "!" / "$" / "&" / "'" / "(" / ")"
                     / "*" / "+" / "," / ";"
 ALPHA               = %x41-5A / %x61-7A   ; A-Z / a-z
