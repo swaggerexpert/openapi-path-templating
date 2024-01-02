@@ -10,10 +10,8 @@ describe('test', function () {
     assert.isTrue(test('/books/{id}'));
     assert.isTrue(test('/a{test}'));
     assert.isTrue(test('/{entity}/{another-entity}/me'));
-    assert.isTrue(test('/'));
-    assert.isTrue(test('/pets?offset={offset}&limit={limit}'));
     assert.isTrue(test('/pets?offset=0&limit=10'));
-    assert.isTrue(test('/pets?offset{offset}limit={limit}'));
+    assert.isTrue(test('/'));
   });
 
   it('should not detect expression', function () {
@@ -21,6 +19,8 @@ describe('test', function () {
     assert.isFalse(test('1'));
     assert.isFalse(test('{petId}'));
     assert.isFalse(test('/pet/{petId'));
+    assert.isFalse(test('/pets?offset={offset}&limit={limit}'));
+    assert.isFalse(test('/pets?offset{offset}limit={limit}'));
     assert.isFalse(test(1));
     assert.isFalse(test(null));
     assert.isFalse(test(undefined));
@@ -33,13 +33,13 @@ describe('test', function () {
       assert.isTrue(test('/{entity}/me', { strict: true }));
       assert.isTrue(test('/books/{id}', { strict: true }));
       assert.isTrue(test('/{entity}/{another-entity}/me'));
-      assert.isTrue(test('/pets/{petId}?offset={offset}&limit={limit}', { strict: true }));
     });
 
     specify('should not detect expression', function () {
       assert.isFalse(test('/', { strict: true }));
       assert.isFalse(test('/pets/mine', { strict: true }));
       assert.isFalse(test('/pets?offset=0&limit=10', { strict: true }));
+      assert.isFalse(test('/pets/{petId}?offset={offset}&limit={limit}', { strict: true }));
       assert.isFalse(test(''));
       assert.isFalse(test('1'));
       assert.isFalse(test('{petId}'));

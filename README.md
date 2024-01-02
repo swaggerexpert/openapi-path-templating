@@ -75,8 +75,9 @@ parseResult.result.success; // => true
       'path-template': [Function: pathTemplate],
       path: [Function: path],
       query: [Function: query],
-      'query-literal': [Function: queryLiteral],
       'query-marker': [Function: queryMarker],
+      fragment: [Function: fragment],
+      'fragment-marker': [Function: fragmentMarker],
       slash: [Function: slash],
       'path-literal': [Function: pathLiteral],
       'template-expression': [Function: templateExpression],
@@ -171,7 +172,7 @@ import { test } from 'openapi-path-templating';
 test('/pets/{petId}'); // => true
 test('/a{petId}'); // => true
 test('/pets'); // => true
-test('/pets', { strict: true }); // => false (doesn't contain template-expression)
+test('/pets', { strict: true }); // => false (doesn't contain any template-expression)
 ```
 
 #### Resolution
@@ -212,12 +213,15 @@ The Path Templating is defined by the following [ABNF](https://tools.ietf.org/ht
 
 ```abnf
 ; OpenAPI Path Templating ABNF syntax
-path-template                  = path [ query-marker query ]
+path-template                  = path [ query-marker query ] [ fragment-marker fragment ]
 path                           = slash *( path-segment slash ) [ path-segment ]
 path-segment                   = 1*( path-literal / template-expression )
-query                          = *( query-literal / template-expression )
+query                          = *( query-literal )
 query-literal                  = 1*( unreserved / pct-encoded / sub-delims / ":" / "@" / "/" / "?" / "&" / "=" )
 query-marker                   = "?"
+fragment                       = *( fragment-literal )
+fragment-literal               = 1*( unreserved / pct-encoded / sub-delims / ":" / "@" / "/" / "?" )
+fragment-marker                = "#"
 slash                          = "/"
 path-literal                   = 1*( unreserved / pct-encoded / sub-delims-no-slash / ":" / "@" )
 template-expression            = "{" template-expression-param-name "}"

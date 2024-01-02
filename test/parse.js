@@ -5,7 +5,7 @@ import { parse } from '../src/index.js';
 describe('parse', function () {
   context('given valid source string', function () {
     context('/pets/{petId}', function () {
-      specify.only('should parse and translate', function () {
+      specify('should parse and translate', function () {
         const parseResult = parse('/pets/{petId}');
 
         const parts = [];
@@ -76,57 +76,62 @@ describe('parse', function () {
           ['path-literal', 'pets'],
           ['query-marker', '?'],
           ['query', 'offset=0&limit=10'],
-          ['query-literal', 'offset=0&limit=10'],
         ]);
       });
     });
 
     context('/pets?offset{offset}limit={limit}', function () {
-      specify('should parse and translate', function () {
-        const parseResult = parse('/pets?offset{offset}limit={limit}');
+      specify('should not parse with template expressions in query', function () {
+        const parseResult = parse('/pets?limit={limit}');
 
-        const parts = [];
-        parseResult.ast.translate(parts);
-
-        assert.isTrue(parseResult.result.success);
-        assert.deepEqual(parts, [
-          ['path-template', '/pets?offset{offset}limit={limit}'],
-          ['path', '/pets'],
-          ['slash', '/'],
-          ['path-literal', 'pets'],
-          ['query-marker', '?'],
-          ['query', 'offset{offset}limit={limit}'],
-          ['query-literal', 'offset'],
-          ['template-expression', '{offset}'],
-          ['template-expression-param-name', 'offset'],
-          ['query-literal', 'limit='],
-          ['template-expression', '{limit}'],
-          ['template-expression-param-name', 'limit'],
-        ]);
+        assert.isFalse(parseResult.result.success);
       });
     });
 
     context('/pets?offset={offset}&limit={limit}', function () {
-      specify('should parse and translate', function () {
+      specify('should not parse with template expressions in query', function () {
         const parseResult = parse('/pets?offset={offset}&limit={limit}');
+
+        assert.isFalse(parseResult.result.success);
+      });
+    });
+
+    context('/pets#fragment', function () {
+      specify('should parse', function () {
+        const parseResult = parse('/pets#fragment');
 
         const parts = [];
         parseResult.ast.translate(parts);
 
         assert.isTrue(parseResult.result.success);
         assert.deepEqual(parts, [
-          ['path-template', '/pets?offset={offset}&limit={limit}'],
+          ['path-template', '/pets#fragment'],
+          ['path', '/pets'],
+          ['slash', '/'],
+          ['path-literal', 'pets'],
+          ['fragment-marker', '#'],
+          ['fragment', 'fragment'],
+        ]);
+      });
+    });
+
+    context('/pets?offset=0#fragment', function () {
+      specify('should parse', function () {
+        const parseResult = parse('/pets?offset=0#fragment');
+
+        const parts = [];
+        parseResult.ast.translate(parts);
+
+        assert.isTrue(parseResult.result.success);
+        assert.deepEqual(parts, [
+          ['path-template', '/pets?offset=0#fragment'],
           ['path', '/pets'],
           ['slash', '/'],
           ['path-literal', 'pets'],
           ['query-marker', '?'],
-          ['query', 'offset={offset}&limit={limit}'],
-          ['query-literal', 'offset='],
-          ['template-expression', '{offset}'],
-          ['template-expression-param-name', 'offset'],
-          ['query-literal', '&limit='],
-          ['template-expression', '{limit}'],
-          ['template-expression-param-name', 'limit'],
+          ['query', 'offset=0'],
+          ['fragment-marker', '#'],
+          ['fragment', 'fragment'],
         ]);
       });
     });

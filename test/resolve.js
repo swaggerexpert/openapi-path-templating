@@ -45,9 +45,15 @@ describe('resolve', function () {
     assert.equal(result, '/pets/1');
   });
 
-  it('should resolve path template with query string template expressions', function () {
+  it('should not resolve path template with query string template expressions', function () {
     const result = resolve('/pets?offset={offset}&limit={limit}', { offset: 0, limit: 10 });
 
-    assert.equal(result, '/pets?offset=0&limit=10');
+    assert.equal(result, '/pets?offset={offset}&limit={limit}');
+  });
+
+  it('should not resolve path template with fragment template expressions', function () {
+    const result = resolve('/pets#{fragment}', { fragment: 'value' });
+
+    assert.equal(result, '/pets#{fragment}');
   });
 });
