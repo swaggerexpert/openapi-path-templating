@@ -68,7 +68,7 @@
     "@babel/cli": "=7.23.4",
     "@babel/core": "=7.23.7",
     "@babel/preset-env": "=7.23.7",
-    "@commitlint/cli": "=18.4.3",
+    "@commitlint/cli": "=18.4.4",
     "@commitlint/config-conventional": "=18.4.3",
     "apg-js": "^4.3.0",
     "chai": "=5.0.0",
