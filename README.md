@@ -118,7 +118,6 @@ After running the above code, **parts** variable has the following shape:
   [ 'slash', '/' ],
   [ 'template-expression', '{petId}' ],
   [ 'template-expression-param-name', 'petId' ]
-
 ]
 ```
 
