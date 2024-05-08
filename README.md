@@ -112,10 +112,13 @@ After running the above code, **parts** variable has the following shape:
 ```js
 [
   [ 'path-template', '/pets/{petId}' ],
+  [ 'path', '/pets/{petId}' ],
   [ 'slash', '/' ],
   [ 'path-literal', 'pets' ],
   [ 'slash', '/' ],
-  [ 'template-expression', '{petId}' ]
+  [ 'template-expression', '{petId}' ],
+  [ 'template-expression-param-name', 'petId' ]
+
 ]
 ```
 
