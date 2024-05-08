@@ -1,14 +1,14 @@
 import parse from './parse/index.js';
 
-const isEncoded = (value) => {
+const isEncoded = (component) => {
   try {
-    return typeof value === 'string' && decodeURIComponent(value) !== value;
+    return typeof component === 'string' && decodeURIComponent(component) !== component;
   } catch (e) {
     return false;
   }
 };
 
-const encodePathComponent = (component) => {
+export const encodePathComponent = (component) => {
   if (isEncoded(component)) {
     return component;
   }
@@ -16,7 +16,7 @@ const encodePathComponent = (component) => {
   return encodeURIComponent(component);
 };
 
-const significanTypes = [
+const significantTypes = [
   'slash',
   'path-literal',
   'query-marker',
@@ -24,7 +24,9 @@ const significanTypes = [
   'template-expression-param-name',
 ];
 
-const resolve = (pathTemplate, parameters = {}) => {
+const resolve = (pathTemplate, parameters = {}, options = {}) => {
+  const defaultOptions = { encoder: encodePathComponent };
+  const mergedOptions = { ...defaultOptions, ...options };
   const parseResult = parse(pathTemplate);
 
   if (!parseResult.result.success) return pathTemplate;
@@ -34,11 +36,11 @@ const resolve = (pathTemplate, parameters = {}) => {
   parseResult.ast.translate(parts);
 
   const resolvedParts = parts
-    .filter(([type]) => significanTypes.includes(type))
+    .filter(([type]) => significantTypes.includes(type))
     .map(([type, value]) => {
       if (type === 'template-expression-param-name') {
         return Object.hasOwn(parameters, value)
-          ? encodePathComponent(parameters[value])
+          ? mergedOptions.encoder(parameters[value])
           : `{${value}}`;
       }
 
