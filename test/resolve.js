@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 
-import { resolve } from '../src/index.js';
+import { resolve, encodePathComponent } from '../src/index.js';
 
 describe('resolve', function () {
   it('should resolve path template with parameter', function () {
@@ -55,5 +55,21 @@ describe('resolve', function () {
     const result = resolve('/pets#{fragment}', { fragment: 'value' });
 
     assert.equal(result, '/pets#{fragment}');
+  });
+
+  it('should accept custom encoding function', function () {
+    const result = resolve(
+      '/pets/{petId}',
+      { petId: '/?#' },
+      {
+        encoder: (component) => component,
+      },
+    );
+
+    assert.equal(result, '/pets//?#');
+  });
+
+  it('should export encodePathComponent function', function () {
+    assert.isFunction(encodePathComponent);
   });
 });

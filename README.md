@@ -46,7 +46,7 @@ and use [apg-lite](https://github.com/ldthomas/apg-lite) parser generator.
 
 #### Parsing
 
-Parsing a Path template expression is as simple as importing the **parse** function
+Parsing a Path Templating is as simple as importing the **parse** function
 and calling it.
 
 ```js
@@ -185,6 +185,17 @@ Resolving a Path Templating is as simple as importing the **resolve** function a
 import { resolve } from 'openapi-path-templating';
 
 resolve('/pets/{petId}', { petId: 3 }); // => "/pets/3"
+```
+
+Resolved Path Templating is automatically encoded using [encodeURIComponent](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent) function.
+It is possible to provide a custom encoder.
+
+```js
+import { resolve } from 'openapi-path-templating';
+
+resolve('/pets/{petId}', { petId: '/?#' }, {
+  encoder: (component) => component, // no encoding
+}); // => "/pets//?#"
 ```
 
 #### Grammar
