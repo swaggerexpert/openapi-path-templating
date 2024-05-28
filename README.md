@@ -1,8 +1,28 @@
 # openapi-path-templating
 
+[![npmversion](https://badge.fury.io/js/openapi-path-templating.svg)](https://www.npmjs.com/package/openapi-path-templating)
+[![npm](https://img.shields.io/npm/dm/openapi-path-templating.svg)](https://www.npmjs.com/package/openapi-path-templating)
+[![Test workflow](https://github.com/char0n/openapi-path-templating/actions/workflows/test.yml/badge.svg)](https://github.com/char0n/openapi-path-templating/actions)
+[![Dependabot enabled](https://img.shields.io/badge/Dependabot-enabled-blue.svg)](https://dependabot.com/)
+[![try on RunKit](https://img.shields.io/badge/try%20on-RunKit-brightgreen.svg?style=flat)](https://npm.runkit.com/openapi-path-templating)
+[![Tidelift](https://tidelift.com/badges/package/npm/openapi-path-templating)](https://tidelift.com/subscription/pkg/npm-openapi-path-templating?utm_source=npm-openapi-path-templating&utm_medium=referral&utm_campaign=readme)
+
 [Path Templating](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#pathTemplating) allow defining values based on information that will only be available within the HTTP message in an actual API call.
 This mechanism is used by [Paths Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#paths-object)
 of [OpenAPI specification](https://github.com/OAI/OpenAPI-Specification).
+
+<table>
+  <tr>
+    <td align="right" valign="middle">
+        <img src="https://cdn2.hubspot.net/hubfs/4008838/website/logos/logos_for_download/Tidelift_primary-shorthand-logo.png" alt="Tidelift" width="60" />
+      </td>
+      <td valign="middle">
+        <a href="https://tidelift.com/subscription/pkg/npm-openapi-path-templating?utm_source=npm-openapi-path-templating&utm_medium=referral&utm_campaign=readme">
+            Get professionally supported openapi-path-templating with Tidelift Subscription.
+        </a>
+      </td>
+  </tr>
+</table>
 
 `openapi-path-templating` is a **parser**, **validator** and **resolver** for OpenAPI Path Templating. It supports
 Path Templating defined in following OpenAPI specification versions:
