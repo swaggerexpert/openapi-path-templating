@@ -11,6 +11,17 @@
 This mechanism is used by [Paths Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#paths-object)
 of [OpenAPI specification](https://github.com/OAI/OpenAPI-Specification).
 
+`openapi-path-templating` is a **parser**, **validator** and **resolver** for OpenAPI Path Templating. It supports
+Path Templating defined in following OpenAPI specification versions:
+
+- [OpenAPI 2.0](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#pathTemplating)
+- [OpenAPI 3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.0.md#pathTemplating)
+- [OpenAPI 3.0.1](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.1.md#pathTemplating)
+- [OpenAPI 3.0.2](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#pathTemplating)
+- [OpenAPI 3.0.3](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#pathTemplating)
+- [OpenAPI 3.1.0](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#pathTemplating)
+
+
 <table>
   <tr>
     <td align="right" valign="middle">
@@ -23,16 +34,6 @@ of [OpenAPI specification](https://github.com/OAI/OpenAPI-Specification).
       </td>
   </tr>
 </table>
-
-`openapi-path-templating` is a **parser**, **validator** and **resolver** for OpenAPI Path Templating. It supports
-Path Templating defined in following OpenAPI specification versions:
-
-- [OpenAPI 2.0](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md#pathTemplating)
-- [OpenAPI 3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.0.md#pathTemplating)
-- [OpenAPI 3.0.1](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.1.md#pathTemplating)
-- [OpenAPI 3.0.2](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#pathTemplating)
-- [OpenAPI 3.0.3](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#pathTemplating)
-- [OpenAPI 3.1.0](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#pathTemplating)
 
 ## Table of Contents
 
