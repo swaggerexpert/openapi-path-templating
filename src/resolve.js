@@ -24,7 +24,7 @@ const significantTypes = [
   'template-expression-param-name',
 ];
 
-const resolve = (pathTemplate, parameters = {}, options = {}) => {
+const resolve = (pathTemplate, parameters, options = {}) => {
   const defaultOptions = { encoder: encodePathComponent };
   const mergedOptions = { ...defaultOptions, ...options };
   const parseResult = parse(pathTemplate);
@@ -40,7 +40,7 @@ const resolve = (pathTemplate, parameters = {}, options = {}) => {
     .map(([type, value]) => {
       if (type === 'template-expression-param-name') {
         return Object.hasOwn(parameters, value)
-          ? mergedOptions.encoder(parameters[value])
+          ? mergedOptions.encoder(parameters[value], value)
           : `{${value}}`;
       }
 

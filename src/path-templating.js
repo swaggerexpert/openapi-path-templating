@@ -5,15 +5,15 @@
 export default function grammar(){
   // ```
   // SUMMARY
-  //      rules = 20
+  //      rules = 19
   //       udts = 0
-  //    opcodes = 113
+  //    opcodes = 102
   //        ---   ABNF original opcodes
-  //        ALT = 10
+  //        ALT = 9
   //        CAT = 7
   //        REP = 11
   //        RNM = 31
-  //        TLS = 51
+  //        TLS = 41
   //        TBS = 0
   //        TRG = 3
   //        ---   SABNF superset opcodes
@@ -43,10 +43,9 @@ export default function grammar(){
   this.rules[13] = { name: 'unreserved', lower: 'unreserved', index: 13, isBkr: false };
   this.rules[14] = { name: 'pct-encoded', lower: 'pct-encoded', index: 14, isBkr: false };
   this.rules[15] = { name: 'sub-delims', lower: 'sub-delims', index: 15, isBkr: false };
-  this.rules[16] = { name: 'sub-delims-no-slash', lower: 'sub-delims-no-slash', index: 16, isBkr: false };
-  this.rules[17] = { name: 'ALPHA', lower: 'alpha', index: 17, isBkr: false };
-  this.rules[18] = { name: 'DIGIT', lower: 'digit', index: 18, isBkr: false };
-  this.rules[19] = { name: 'HEXDIG', lower: 'hexdig', index: 19, isBkr: false };
+  this.rules[16] = { name: 'ALPHA', lower: 'alpha', index: 16, isBkr: false };
+  this.rules[17] = { name: 'DIGIT', lower: 'digit', index: 17, isBkr: false };
+  this.rules[18] = { name: 'HEXDIG', lower: 'hexdig', index: 18, isBkr: false };
 
   /* UDTS */
   this.udts = [];
@@ -137,7 +136,7 @@ export default function grammar(){
   this.rules[10].opcodes[1] = { type: 1, children: [2,3,4,5,6] };// ALT
   this.rules[10].opcodes[2] = { type: 4, index: 13 };// RNM(unreserved)
   this.rules[10].opcodes[3] = { type: 4, index: 14 };// RNM(pct-encoded)
-  this.rules[10].opcodes[4] = { type: 4, index: 16 };// RNM(sub-delims-no-slash)
+  this.rules[10].opcodes[4] = { type: 4, index: 15 };// RNM(sub-delims)
   this.rules[10].opcodes[5] = { type: 7, string: [58] };// TLS
   this.rules[10].opcodes[6] = { type: 7, string: [64] };// TLS
 
@@ -154,15 +153,15 @@ export default function grammar(){
   this.rules[12].opcodes[1] = { type: 1, children: [2,3,4,5,6] };// ALT
   this.rules[12].opcodes[2] = { type: 4, index: 13 };// RNM(unreserved)
   this.rules[12].opcodes[3] = { type: 4, index: 14 };// RNM(pct-encoded)
-  this.rules[12].opcodes[4] = { type: 4, index: 16 };// RNM(sub-delims-no-slash)
+  this.rules[12].opcodes[4] = { type: 4, index: 15 };// RNM(sub-delims)
   this.rules[12].opcodes[5] = { type: 7, string: [58] };// TLS
   this.rules[12].opcodes[6] = { type: 7, string: [64] };// TLS
 
   /* unreserved */
   this.rules[13].opcodes = [];
   this.rules[13].opcodes[0] = { type: 1, children: [1,2,3,4,5,6] };// ALT
-  this.rules[13].opcodes[1] = { type: 4, index: 17 };// RNM(ALPHA)
-  this.rules[13].opcodes[2] = { type: 4, index: 18 };// RNM(DIGIT)
+  this.rules[13].opcodes[1] = { type: 4, index: 16 };// RNM(ALPHA)
+  this.rules[13].opcodes[2] = { type: 4, index: 17 };// RNM(DIGIT)
   this.rules[13].opcodes[3] = { type: 7, string: [45] };// TLS
   this.rules[13].opcodes[4] = { type: 7, string: [46] };// TLS
   this.rules[13].opcodes[5] = { type: 7, string: [95] };// TLS
@@ -172,8 +171,8 @@ export default function grammar(){
   this.rules[14].opcodes = [];
   this.rules[14].opcodes[0] = { type: 2, children: [1,2,3] };// CAT
   this.rules[14].opcodes[1] = { type: 7, string: [37] };// TLS
-  this.rules[14].opcodes[2] = { type: 4, index: 19 };// RNM(HEXDIG)
-  this.rules[14].opcodes[3] = { type: 4, index: 19 };// RNM(HEXDIG)
+  this.rules[14].opcodes[2] = { type: 4, index: 18 };// RNM(HEXDIG)
+  this.rules[14].opcodes[3] = { type: 4, index: 18 };// RNM(HEXDIG)
 
   /* sub-delims */
   this.rules[15].opcodes = [];
@@ -190,40 +189,26 @@ export default function grammar(){
   this.rules[15].opcodes[10] = { type: 7, string: [59] };// TLS
   this.rules[15].opcodes[11] = { type: 7, string: [61] };// TLS
 
-  /* sub-delims-no-slash */
-  this.rules[16].opcodes = [];
-  this.rules[16].opcodes[0] = { type: 1, children: [1,2,3,4,5,6,7,8,9,10] };// ALT
-  this.rules[16].opcodes[1] = { type: 7, string: [33] };// TLS
-  this.rules[16].opcodes[2] = { type: 7, string: [36] };// TLS
-  this.rules[16].opcodes[3] = { type: 7, string: [38] };// TLS
-  this.rules[16].opcodes[4] = { type: 7, string: [39] };// TLS
-  this.rules[16].opcodes[5] = { type: 7, string: [40] };// TLS
-  this.rules[16].opcodes[6] = { type: 7, string: [41] };// TLS
-  this.rules[16].opcodes[7] = { type: 7, string: [42] };// TLS
-  this.rules[16].opcodes[8] = { type: 7, string: [43] };// TLS
-  this.rules[16].opcodes[9] = { type: 7, string: [44] };// TLS
-  this.rules[16].opcodes[10] = { type: 7, string: [59] };// TLS
-
   /* ALPHA */
-  this.rules[17].opcodes = [];
-  this.rules[17].opcodes[0] = { type: 1, children: [1,2] };// ALT
-  this.rules[17].opcodes[1] = { type: 5, min: 65, max: 90 };// TRG
-  this.rules[17].opcodes[2] = { type: 5, min: 97, max: 122 };// TRG
+  this.rules[16].opcodes = [];
+  this.rules[16].opcodes[0] = { type: 1, children: [1,2] };// ALT
+  this.rules[16].opcodes[1] = { type: 5, min: 65, max: 90 };// TRG
+  this.rules[16].opcodes[2] = { type: 5, min: 97, max: 122 };// TRG
 
   /* DIGIT */
-  this.rules[18].opcodes = [];
-  this.rules[18].opcodes[0] = { type: 5, min: 48, max: 57 };// TRG
+  this.rules[17].opcodes = [];
+  this.rules[17].opcodes[0] = { type: 5, min: 48, max: 57 };// TRG
 
   /* HEXDIG */
-  this.rules[19].opcodes = [];
-  this.rules[19].opcodes[0] = { type: 1, children: [1,2,3,4,5,6,7] };// ALT
-  this.rules[19].opcodes[1] = { type: 4, index: 18 };// RNM(DIGIT)
-  this.rules[19].opcodes[2] = { type: 7, string: [97] };// TLS
-  this.rules[19].opcodes[3] = { type: 7, string: [98] };// TLS
-  this.rules[19].opcodes[4] = { type: 7, string: [99] };// TLS
-  this.rules[19].opcodes[5] = { type: 7, string: [100] };// TLS
-  this.rules[19].opcodes[6] = { type: 7, string: [101] };// TLS
-  this.rules[19].opcodes[7] = { type: 7, string: [102] };// TLS
+  this.rules[18].opcodes = [];
+  this.rules[18].opcodes[0] = { type: 1, children: [1,2,3,4,5,6,7] };// ALT
+  this.rules[18].opcodes[1] = { type: 4, index: 17 };// RNM(DIGIT)
+  this.rules[18].opcodes[2] = { type: 7, string: [97] };// TLS
+  this.rules[18].opcodes[3] = { type: 7, string: [98] };// TLS
+  this.rules[18].opcodes[4] = { type: 7, string: [99] };// TLS
+  this.rules[18].opcodes[5] = { type: 7, string: [100] };// TLS
+  this.rules[18].opcodes[6] = { type: 7, string: [101] };// TLS
+  this.rules[18].opcodes[7] = { type: 7, string: [102] };// TLS
 
   // The `toString()` function will display the original grammar file(s) that produced these opcodes.
   this.toString = function toString(){
@@ -239,17 +224,15 @@ export default function grammar(){
     str += "fragment-literal               = 1*( unreserved / pct-encoded / sub-delims / \":\" / \"@\" / \"/\" / \"?\" )\n";
     str += "fragment-marker                = \"#\"\n";
     str += "slash                          = \"/\"\n";
-    str += "path-literal                   = 1*( unreserved / pct-encoded / sub-delims-no-slash / \":\" / \"@\" )\n";
+    str += "path-literal                   = 1*( unreserved / pct-encoded / sub-delims / \":\" / \"@\" )\n";
     str += "template-expression            = \"{\" template-expression-param-name \"}\"\n";
-    str += "template-expression-param-name = 1*( unreserved / pct-encoded / sub-delims-no-slash / \":\" / \"@\" )\n";
+    str += "template-expression-param-name = 1*( unreserved / pct-encoded / sub-delims / \":\" / \"@\" )\n";
     str += "\n";
     str += "; Characters definitions (from RFC 3986)\n";
     str += "unreserved          = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n";
     str += "pct-encoded         = \"%\" HEXDIG HEXDIG\n";
     str += "sub-delims          = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n";
     str += "                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"\n";
-    str += "sub-delims-no-slash = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n";
-    str += "                    / \"*\" / \"+\" / \",\" / \";\"\n";
     str += "ALPHA               = %x41-5A / %x61-7A   ; A-Z / a-z\n";
     str += "DIGIT               = %x30-39            ; 0-9\n";
     str += "HEXDIG              = DIGIT / \"A\" / \"B\" / \"C\" / \"D\" / \"E\" / \"F\"\n";

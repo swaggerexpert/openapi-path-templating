@@ -82,7 +82,7 @@ describe('parse', function () {
 
     context('/pets?offset{offset}limit={limit}', function () {
       specify('should not parse with template expressions in query', function () {
-        const parseResult = parse('/pets?limit={limit}');
+        const parseResult = parse('/pets?offset{offset}limit={limit}');
 
         assert.isFalse(parseResult.result.success);
       });
