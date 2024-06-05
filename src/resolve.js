@@ -13,7 +13,7 @@ export const encodePathComponent = (component) => {
     return component;
   }
 
-  return encodeURIComponent(component);
+  return encodeURIComponent(component).replace(/%5B/g, '[').replace(/%5D/g, ']');
 };
 
 const significantTypes = [

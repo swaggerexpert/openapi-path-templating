@@ -21,6 +21,12 @@ describe('resolve', function () {
     assert.equal(result, '/pets/%2F%3F%23');
   });
 
+  it('should avoid encoding "[" and "]" characters using encodeURIComponent', function () {
+    const result = resolve('/pets/{petId}', { petId: '[]' });
+
+    assert.equal(result, '/pets/[]');
+  });
+
   it('should encode "generic syntax" characters described by RFC3986', function () {
     const result = resolve('/pets/{petId}', { petId: '/?#' });
 
