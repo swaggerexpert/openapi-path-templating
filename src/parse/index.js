@@ -14,7 +14,7 @@ import templateExpressionParamNameCallback from './callbacks/template-expression
 
 const grammar = new Grammar();
 
-const parse = (str) => {
+const parse = (pathTemplate) => {
   const parser = new Parser();
 
   parser.ast = new AST();
@@ -29,7 +29,7 @@ const parse = (str) => {
   parser.ast.callbacks['template-expression'] = templateExpressionCallback;
   parser.ast.callbacks['template-expression-param-name'] = templateExpressionParamNameCallback;
 
-  const result = parser.parse(grammar, 'path-template', str);
+  const result = parser.parse(grammar, 'path-template', pathTemplate);
 
   return { result, ast: parser.ast };
 };
