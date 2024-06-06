@@ -1,19 +1,21 @@
 import parse from './parse/index.js';
 
-const isEncoded = (component) => {
+const isEncoded = (parameterValue) => {
   try {
-    return typeof component === 'string' && decodeURIComponent(component) !== component;
-  } catch (e) {
+    return (
+      typeof parameterValue === 'string' && decodeURIComponent(parameterValue) !== parameterValue
+    );
+  } catch {
     return false;
   }
 };
 
-export const encodePathComponent = (component) => {
-  if (isEncoded(component)) {
-    return component;
+export const encodePathComponent = (parameterValue) => {
+  if (isEncoded(parameterValue)) {
+    return parameterValue;
   }
 
-  return encodeURIComponent(component).replace(/%5B/g, '[').replace(/%5D/g, ']');
+  return encodeURIComponent(parameterValue).replace(/%5B/g, '[').replace(/%5D/g, ']');
 };
 
 const significantTypes = [
