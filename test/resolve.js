@@ -9,10 +9,16 @@ describe('resolve', function () {
     assert.equal(result, '/pets/123');
   });
 
-  it('should resolve multiple path templates with parameter', function () {
+  it('should resolve multiple path templates with single parameter', function () {
     const result = resolve('/pets/{petId}/{petId}', { petId: '123' });
 
     assert.equal(result, '/pets/123/123');
+  });
+
+  it('should resolve multiple path templates with multiple parameters', function () {
+    const result = resolve('/pets/{param1}/{param2}', { param1: 1, param2: 2 });
+
+    assert.equal(result, '/pets/1/2');
   });
 
   it('should encode characters using encodeURIComponent', function () {
