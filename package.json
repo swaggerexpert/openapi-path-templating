@@ -35,7 +35,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/char0n/openapi-path-templating.git"
+    "url": "https://github.com/swaggerexpert/openapi-path-templating.git"
   },
   "keywords": [
     "openapi",
@@ -48,9 +48,9 @@
   "author": "Vladimír Gorej <vladimir.gorej@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/char0n/openapi-path-templating/issues"
+    "url": "https://github.com/swaggerexpert/openapi-path-templating/issues"
   },
-  "homepage": "https://github.com/char0n/openapi-path-templating#readme",
+  "homepage": "https://github.com/swaggerexpert/openapi-path-templating#readme",
   "files": [
     "es/",
     "cjs/",
