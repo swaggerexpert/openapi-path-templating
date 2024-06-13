@@ -2,7 +2,7 @@
 
 [![npmversion](https://badge.fury.io/js/openapi-path-templating.svg)](https://www.npmjs.com/package/openapi-path-templating)
 [![npm](https://img.shields.io/npm/dm/openapi-path-templating.svg)](https://www.npmjs.com/package/openapi-path-templating)
-[![Test workflow](https://github.com/char0n/openapi-path-templating/actions/workflows/test.yml/badge.svg)](https://github.com/char0n/openapi-path-templating/actions)
+[![Test workflow](https://github.com/swaggerexpert/openapi-path-templating/actions/workflows/test.yml/badge.svg)](https://github.com/swaggerexpert/openapi-path-templating/actions)
 [![Dependabot enabled](https://img.shields.io/badge/Dependabot-enabled-blue.svg)](https://dependabot.com/)
 [![try on RunKit](https://img.shields.io/badge/try%20on-RunKit-brightgreen.svg?style=flat)](https://npm.runkit.com/openapi-path-templating)
 [![Tidelift](https://tidelift.com/badges/package/npm/openapi-path-templating)](https://tidelift.com/subscription/pkg/npm-openapi-path-templating?utm_source=npm-openapi-path-templating&utm_medium=referral&utm_campaign=readme)
@@ -273,6 +273,6 @@ HEXDIG              = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 
 ## License
 
-`openapi-path-templating` is licensed under [Apache 2.0 license](https://github.com/char0n/openapi-path-templating/blob/main/LICENSE).
-`openapi-path-templating` comes with an explicit [NOTICE](https://github.com/char0n/openapi-path-templating/blob/main/NOTICE) file
+`openapi-path-templating` is licensed under [Apache 2.0 license](https://github.com/swaggerexpert/openapi-path-templating/blob/main/LICENSE).
+`openapi-path-templating` comes with an explicit [NOTICE](https://github.com/swaggerexpert/openapi-path-templating/blob/main/NOTICE) file
 containing additional legal notices and information.
