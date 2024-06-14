@@ -1,4 +1,4 @@
-import { Ast as AST, Parser } from '#apg-lite';
+import { Ast as AST, Parser } from 'apg-lite';
 
 import Grammar from '../path-templating.js';
 import slashCallback from './callbacks/slash.js';
