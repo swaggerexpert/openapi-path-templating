@@ -19,6 +19,7 @@ describe('test', function () {
     assert.isTrue(test('/{entity}/{another-entity}/me'));
     // NOTE: the following scenario should probably be considered invalid, query parameters are not allowed in path templates
     assert.isTrue(test('/pets?offset=0&limit=10'));
+    // -->
     assert.isTrue(test('/'));
     // special characters in literal are allowed
     assert.isTrue(test('/-/'));
@@ -36,7 +37,9 @@ describe('test', function () {
     assert.isTrue(test('/{foo:baz}'));
     assert.isTrue(test('/{=baz}'));
     assert.isTrue(test('/{$baz}'));
+    assert.isTrue(test('/{~baz}'));
     // -->
+    assert.isTrue(test('/%20'));
     assert.isTrue(test('/functions/t_Dist_2T'));
     assert.isTrue(test('/users/$count'));
     assert.isTrue(test('/users/delta()'));
@@ -64,6 +67,12 @@ describe('test', function () {
     assert.isFalse(test('/{/baz}'));
     assert.isFalse(test('/{foo baz}'));
     assert.isFalse(test('/{|baz}'));
+    assert.isFalse(test('/{^baz}'));
+    assert.isFalse(test('/{`baz}'));
+    assert.isFalse(test('/{❤️}'));
+    assert.isFalse(test('/{%}'));
+    // special characters in literals are not allowed
+    assert.isFalse(test('/❤️'));
   });
 
   context('given strict option', function () {
