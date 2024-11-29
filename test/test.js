@@ -5,16 +5,35 @@ import { test } from '../src/index.js';
 describe('test', function () {
   it('should detect as path template', function () {
     assert.isTrue(test('/{path}'));
+    // trailing slash is allowed
+    assert.isTrue(test('/{path}/'));
     assert.isTrue(test('/pets/{petId}'));
     assert.isTrue(test('/{entity}/me'));
     assert.isTrue(test('/books/{id}'));
     assert.isTrue(test('/a{test}'));
+    assert.isTrue(test('/{test}a'));
+    // parentheses are allowed
+    assert.isTrue(test('/range({x},{y})'));
+    // repeated parameter names are allowed
+    assert.isTrue(test('/range({x},{y})/secondRange({x},{y})'));
     assert.isTrue(test('/{entity}/{another-entity}/me'));
     assert.isTrue(test('/pets?offset=0&limit=10'));
     assert.isTrue(test('/'));
+    // special characters in literal are allowed
+    assert.isTrue(test('/-/'));
+    assert.isTrue(test('/~/'));
+    assert.isTrue(test('/functions/t_Dist_2T'));
+    assert.isTrue(test('/users/$count'));
+    assert.isTrue(test('/users/delta()'));
+    assert.isTrue(test('/directoryObjects/microsoft.graph.user'));
+    assert.isTrue(test('/applications(appId=\'{appId}\')'));
+    assert.isTrue(test('/communications/onlineMeetings/getAllRecordings(meetingOrganizerUserId=\'@meetingOrganizerUserId\')'));
+    // special characters in parameter names are allowed
+    assert.isTrue(test('/users/{user-id}'));
   });
 
   it('should not detect expression', function () {
+    assert.isFalse(test('//'));
     assert.isFalse(test(''));
     assert.isFalse(test('1'));
     assert.isFalse(test('{petId}'));
