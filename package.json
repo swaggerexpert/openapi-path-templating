@@ -24,6 +24,7 @@
     "build:cjs": "cross-env BABEL_ENV=cjs babel src --out-dir cjs --extensions '.js' --out-file-extension '.cjs'",
     "build:cjs:apg-lite": "cross-env BABEL_ENV=cjs babel node_modules/apg-lite/lib/parser.js --out-file ./cjs/apg-lite.cjs",
     "test": "mocha",
+    "test:watch": "npm-watch test",
     "watch": "npm-watch"
   },
   "engines": {
