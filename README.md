@@ -40,7 +40,6 @@ Path Templating defined in following OpenAPI specification versions:
 - [Getting started](#getting-started)
   - [Installation](#installation)
   - [Usage](#usage)
-    - [Extraction](#extraction)
     - [Parsing](#parsing)
     - [Validation](#validation)
     - [Resolution](#resolution)
