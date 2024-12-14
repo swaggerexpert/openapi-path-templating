@@ -19,7 +19,9 @@ Path Templating defined in following OpenAPI specification versions:
 - [OpenAPI 3.0.1](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.1.md#pathTemplating)
 - [OpenAPI 3.0.2](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#pathTemplating)
 - [OpenAPI 3.0.3](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#pathTemplating)
+- [OpenAPI 3.0.4](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.4.md#path-templating)
 - [OpenAPI 3.1.0](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md#pathTemplating)
+- [OpenAPI 3.1.1](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#path-templating)
 
 
 <table>
