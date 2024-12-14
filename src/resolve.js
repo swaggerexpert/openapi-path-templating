@@ -18,13 +18,7 @@ export const encodePathComponent = (parameterValue) => {
   return encodeURIComponent(parameterValue).replace(/%5B/g, '[').replace(/%5D/g, ']');
 };
 
-const significantTypes = [
-  'slash',
-  'path-literal',
-  'query-marker',
-  'query-literal',
-  'template-expression-param-name',
-];
+const significantTypes = ['slash', 'path-literal', 'template-expression-param-name'];
 
 const resolve = (pathTemplate, parameters, options = {}) => {
   const defaultOptions = { encoder: encodePathComponent };

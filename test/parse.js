@@ -14,7 +14,6 @@ describe('parse', function () {
         assert.isTrue(parseResult.result.success);
         assert.deepEqual(parts, [
           ['path-template', '/pets/{petId}'],
-          ['path', '/pets/{petId}'],
           ['slash', '/'],
           ['path-literal', 'pets'],
           ['slash', '/'],
@@ -34,7 +33,6 @@ describe('parse', function () {
         assert.isTrue(parseResult.result.success);
         assert.deepEqual(parts, [
           ['path-template', '/{petId}'],
-          ['path', '/{petId}'],
           ['slash', '/'],
           ['template-expression', '{petId}'],
           ['template-expression-param-name', 'petId'],
@@ -52,7 +50,6 @@ describe('parse', function () {
         assert.isTrue(parseResult.result.success);
         assert.deepEqual(parts, [
           ['path-template', '/a{petId}'],
-          ['path', '/a{petId}'],
           ['slash', '/'],
           ['path-literal', 'a'],
           ['template-expression', '{petId}'],
@@ -62,21 +59,10 @@ describe('parse', function () {
     });
 
     context('/pets?offset=0&limit=10', function () {
-      specify('should parse and translate', function () {
+      specify('should not parse with query', function () {
         const parseResult = parse('/pets?offset=0&limit=10');
 
-        const parts = [];
-        parseResult.ast.translate(parts);
-
-        assert.isTrue(parseResult.result.success);
-        assert.deepEqual(parts, [
-          ['path-template', '/pets?offset=0&limit=10'],
-          ['path', '/pets'],
-          ['slash', '/'],
-          ['path-literal', 'pets'],
-          ['query-marker', '?'],
-          ['query', 'offset=0&limit=10'],
-        ]);
+        assert.isFalse(parseResult.result.success);
       });
     });
 
@@ -97,42 +83,18 @@ describe('parse', function () {
     });
 
     context('/pets#fragment', function () {
-      specify('should parse', function () {
+      specify('should not parse with fragment', function () {
         const parseResult = parse('/pets#fragment');
 
-        const parts = [];
-        parseResult.ast.translate(parts);
-
-        assert.isTrue(parseResult.result.success);
-        assert.deepEqual(parts, [
-          ['path-template', '/pets#fragment'],
-          ['path', '/pets'],
-          ['slash', '/'],
-          ['path-literal', 'pets'],
-          ['fragment-marker', '#'],
-          ['fragment', 'fragment'],
-        ]);
+        assert.isFalse(parseResult.result.success);
       });
     });
 
     context('/pets?offset=0#fragment', function () {
-      specify('should parse', function () {
+      specify('should not parse with query and fragment', function () {
         const parseResult = parse('/pets?offset=0#fragment');
 
-        const parts = [];
-        parseResult.ast.translate(parts);
-
-        assert.isTrue(parseResult.result.success);
-        assert.deepEqual(parts, [
-          ['path-template', '/pets?offset=0#fragment'],
-          ['path', '/pets'],
-          ['slash', '/'],
-          ['path-literal', 'pets'],
-          ['query-marker', '?'],
-          ['query', 'offset=0'],
-          ['fragment-marker', '#'],
-          ['fragment', 'fragment'],
-        ]);
+        assert.isFalse(parseResult.result.success);
       });
     });
 
@@ -146,7 +108,6 @@ describe('parse', function () {
         assert.isTrue(parseResult.result.success);
         assert.deepEqual(parts, [
           ['path-template', '/pets/mine'],
-          ['path', '/pets/mine'],
           ['slash', '/'],
           ['path-literal', 'pets'],
           ['slash', '/'],
@@ -165,7 +126,6 @@ describe('parse', function () {
         assert.isTrue(parseResult.result.success);
         assert.deepEqual(parts, [
           ['path-template', '/'],
-          ['path', '/'],
           ['slash', '/'],
         ]);
       });

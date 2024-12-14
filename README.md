@@ -89,17 +89,12 @@ parseResult.result.success; // => true
     length: 13,
     matched: 13,
     maxMatched: 13,
-    maxTreeDepth: 18,
-    nodeHits: 324
+    maxTreeDepth: 20,
+    nodeHits: 232
   },
   ast: fnast {
     callbacks: [
       'path-template': [Function: pathTemplate],
-      path: [Function: path],
-      query: [Function: query],
-      'query-marker': [Function: queryMarker],
-      fragment: [Function: fragment],
-      'fragment-marker': [Function: fragmentMarker],
       slash: [Function: slash],
       'path-literal': [Function: pathLiteral],
       'template-expression': [Function: templateExpression],
@@ -134,7 +129,6 @@ After running the above code, **parts** variable has the following shape:
 ```js
 [
   [ 'path-template', '/pets/{petId}' ],
-  [ 'path', '/pets/{petId}' ],
   [ 'slash', '/' ],
   [ 'path-literal', 'pets' ],
   [ 'slash', '/' ],
@@ -156,29 +150,26 @@ After running the above code, **xml** variable has the following content:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
-<root nodes="7" characters="13">
+<root nodes="6" characters="13">
   <!-- input string -->
   /pets/{petId}
   <node name="path-template" index="0" length="13">
     /pets/{petId}
-    <node name="path" index="0" length="13">
-      /pets/{petId}
-      <node name="slash" index="0" length="1">
-        /
-      </node><!-- name="slash" -->
-      <node name="path-literal" index="1" length="4">
-        pets
-      </node><!-- name="path-literal" -->
-      <node name="slash" index="5" length="1">
-        /
-      </node><!-- name="slash" -->
-      <node name="template-expression" index="6" length="7">
-        {petId}
-        <node name="template-expression-param-name" index="7" length="5">
-          petId
-        </node><!-- name="template-expression-param-name" -->
-      </node><!-- name="template-expression" -->
-    </node><!-- name="path" -->
+    <node name="slash" index="0" length="1">
+      /
+    </node><!-- name="slash" -->
+    <node name="path-literal" index="1" length="4">
+      pets
+    </node><!-- name="path-literal" -->
+    <node name="slash" index="5" length="1">
+      /
+    </node><!-- name="slash" -->
+    <node name="template-expression" index="6" length="7">
+      {petId}
+      <node name="template-expression-param-name" index="7" length="5">
+        petId
+      </node><!-- name="template-expression-param-name" -->
+    </node><!-- name="template-expression" -->
   </node><!-- name="path-template" -->
 </root>
 ```
@@ -248,21 +239,17 @@ The Path Templating is defined by the following [ABNF](https://tools.ietf.org/ht
 
 ```abnf
 ; OpenAPI Path Templating ABNF syntax
-path-template                  = path [ query-marker query ] [ fragment-marker fragment ]
-path                           = slash *( path-segment slash ) [ path-segment ]
-path-segment                   = 1*( path-literal / template-expression )
-query                          = *( query-literal )
-query-literal                  = 1*( unreserved / pct-encoded / sub-delims / ":" / "@" / "/" / "?" / "&" / "=" )
-query-marker                   = "?"
-fragment                       = *( fragment-literal )
-fragment-literal               = 1*( unreserved / pct-encoded / sub-delims / ":" / "@" / "/" / "?" )
-fragment-marker                = "#"
+; Aligned with RFC 3986 (https://datatracker.ietf.org/doc/html/rfc3986#section-3.3)
+path-template                  = slash [ path-template-nz ]
+path-template-nz               = path-segment *( slash path-segment )
 slash                          = "/"
-path-literal                   = 1*( unreserved / pct-encoded / sub-delims / ":" / "@" )
+path-segment                   = 1*( path-literal / template-expression )
+path-literal                   = 1*pchar
 template-expression            = "{" template-expression-param-name "}"
-template-expression-param-name = 1*( unreserved / pct-encoded / sub-delims / ":" / "@" )
+template-expression-param-name = 1*pchar
 
 ; Characters definitions (from RFC 3986)
+pchar               = unreserved / pct-encoded / sub-delims / ":" / "@"
 unreserved          = ALPHA / DIGIT / "-" / "." / "_" / "~"
 pct-encoded         = "%" HEXDIG HEXDIG
 sub-delims          = "!" / "$" / "&" / "'" / "(" / ")"

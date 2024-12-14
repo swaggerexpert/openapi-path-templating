@@ -10,7 +10,6 @@ describe('test', function () {
     assert.isTrue(test('/books/{id}'));
     assert.isTrue(test('/a{test}'));
     assert.isTrue(test('/{entity}/{another-entity}/me'));
-    assert.isTrue(test('/pets?offset=0&limit=10'));
     assert.isTrue(test('/'));
   });
 
@@ -19,6 +18,7 @@ describe('test', function () {
     assert.isFalse(test('1'));
     assert.isFalse(test('{petId}'));
     assert.isFalse(test('/pet/{petId'));
+    assert.isFalse(test('/pets?offset=0&limit=10'));
     assert.isFalse(test('/pets?offset={offset}&limit={limit}'));
     assert.isFalse(test('/pets?offset{offset}limit={limit}'));
     assert.isFalse(test(1));
