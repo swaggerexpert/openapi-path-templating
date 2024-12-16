@@ -1,9 +1,7 @@
 ; OpenAPI Path Templating ABNF syntax
-; Aligned with RFC 3986 (https://datatracker.ietf.org/doc/html/rfc3986#section-3.3)
-path-template                  = slash [ path-template-nz ]
-path-template-nz               = path-segment *( slash path-segment )
-slash                          = "/"
+path-template                  = slash *( path-segment slash ) [ path-segment ]
 path-segment                   = 1*( path-literal / template-expression )
+slash                          = "/"
 path-literal                   = 1*pchar
 template-expression            = "{" template-expression-param-name "}"
 template-expression-param-name = 1*pchar

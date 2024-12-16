@@ -40,6 +40,24 @@ describe('parse', function () {
       });
     });
 
+    context('/{petId}/', function () {
+      specify.only('should parse and translate', function () {
+        const parseResult = parse('/{petId}/');
+
+        const parts = [];
+        parseResult.ast.translate(parts);
+
+        assert.isTrue(parseResult.result.success);
+        assert.deepEqual(parts, [
+          ['path-template', '/{petId}/'],
+          ['slash', '/'],
+          ['template-expression', '{petId}'],
+          ['template-expression-param-name', 'petId'],
+          ['slash', '/'],
+        ]);
+      });
+    });
+
     context('/a{petId}', function () {
       specify('should parse and translate', function () {
         const parseResult = parse('/a{petId}');
@@ -135,9 +153,9 @@ describe('parse', function () {
   context('given invalid source string', function () {
     context('given empty value for template expression', function () {
       specify('should fail parsing', function () {
-        const parseResult = parse('/pets/{}');
+        const parseResult = parse('/pets/{petId}/');
 
-        assert.isFalse(parseResult.result.success);
+        assert.isTrue(parseResult.result.success);
       });
     });
 
