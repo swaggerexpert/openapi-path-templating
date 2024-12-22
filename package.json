@@ -1,6 +1,6 @@
 {
   "name": "openapi-path-templating",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "OpenAPI Path Templating parser, validator and resolver.",
   "main": "./cjs/index.cjs",
   "types": "./types/index.d.ts",
@@ -60,10 +60,10 @@
     "SECURITY.md"
   ],
   "dependencies": {
-    "apg-lite": "^1.0.3"
+    "apg-lite": "^1.0.4"
   },
   "devDependencies": {
-    "@babel/cli": "=7.25.9",
+    "@babel/cli": "=7.26.4",
     "@babel/core": "=7.26.0",
     "@babel/preset-env": "=7.26.0",
     "@commitlint/cli": "=19.6.0",
@@ -73,7 +73,7 @@
     "chai": "=5.1.2",
     "cross-env": "^7.0.3",
     "husky": "=9.1.7",
-    "mocha": "=10.8.2",
+    "mocha": "=11.0.1",
     "npm-watch": "^0.13.0",
     "prettier": "^3.1.1"
   }
