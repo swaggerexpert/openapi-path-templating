@@ -13,7 +13,7 @@ pct-encoded         = "%" HEXDIG HEXDIG
 sub-delims          = "!" / "$" / "&" / "'" / "(" / ")"
                     / "*" / "+" / "," / ";" / "="
 
-; Character definitions (from RFC 5234)
+; Characters definitions (from RFC 5234)
 ALPHA               = %x41-5A / %x61-7A   ; A-Z / a-z
 DIGIT               = %x30-39            ; 0-9
 HEXDIG              = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"

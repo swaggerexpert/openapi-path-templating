@@ -167,7 +167,7 @@ export default function grammar(){
     str += "sub-delims          = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n";
     str += "                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"\n";
     str += "\n";
-    str += "; Character definitions (from RFC 5234)\n";
+    str += "; Characters definitions (from RFC 5234)\n";
     str += "ALPHA               = %x41-5A / %x61-7A   ; A-Z / a-z\n";
     str += "DIGIT               = %x30-39            ; 0-9\n";
     str += "HEXDIG              = DIGIT / \"A\" / \"B\" / \"C\" / \"D\" / \"E\" / \"F\"\n";
