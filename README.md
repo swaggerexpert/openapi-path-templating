@@ -241,14 +241,12 @@ The Path Templating is defined by the following [ABNF](https://tools.ietf.org/ht
 
 ```abnf
 ; OpenAPI Path Templating ABNF syntax
-; Aligned with RFC 3986 (https://datatracker.ietf.org/doc/html/rfc3986#section-3.3)
-path-template                  = slash [ path-template-nz ]
-path-template-nz               = path-segment *( slash path-segment )
-slash                          = "/"
+path-template                  = slash *( path-segment slash ) [ path-segment ]
 path-segment                   = 1*( path-literal / template-expression )
+slash                          = "/"
 path-literal                   = 1*pchar
 template-expression            = "{" template-expression-param-name "}"
-template-expression-param-name = 1*pchar
+template-expression-param-name = 1*( %x00-79 / %x7C / %x7E-10FFFF ) ; every UTF8 character except { and } (from OpenAPI)
 
 ; Characters definitions (from RFC 3986)
 pchar               = unreserved / pct-encoded / sub-delims / ":" / "@"
@@ -256,6 +254,8 @@ unreserved          = ALPHA / DIGIT / "-" / "." / "_" / "~"
 pct-encoded         = "%" HEXDIG HEXDIG
 sub-delims          = "!" / "$" / "&" / "'" / "(" / ")"
                     / "*" / "+" / "," / ";" / "="
+
+; Characters definitions (from RFC 5234)
 ALPHA               = %x41-5A / %x61-7A   ; A-Z / a-z
 DIGIT               = %x30-39            ; 0-9
 HEXDIG              = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
