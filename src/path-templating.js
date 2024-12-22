@@ -7,20 +7,20 @@ export default function grammar(){
   // SUMMARY
   //      rules = 13
   //       udts = 0
-  //    opcodes = 62
+  //    opcodes = 65
   //        ---   ABNF original opcodes
-  //        ALT = 6
+  //        ALT = 7
   //        CAT = 4
   //        REP = 5
-  //        RNM = 17
+  //        RNM = 16
   //        TLS = 27
-  //        TBS = 0
-  //        TRG = 3
+  //        TBS = 1
+  //        TRG = 5
   //        ---   SABNF superset opcodes
   //        UDT = 0
   //        AND = 0
   //        NOT = 0
-  // characters = [33 - 126]
+  // characters = [0 - 1114111]
   // ```
   /* OBJECT IDENTIFIER (for internal parser use) */
   this.grammarObject = 'grammarObject';
@@ -82,7 +82,10 @@ export default function grammar(){
   /* template-expression-param-name */
   this.rules[5].opcodes = [];
   this.rules[5].opcodes[0] = { type: 3, min: 1, max: Infinity };// REP
-  this.rules[5].opcodes[1] = { type: 4, index: 6 };// RNM(pchar)
+  this.rules[5].opcodes[1] = { type: 1, children: [2,3,4] };// ALT
+  this.rules[5].opcodes[2] = { type: 5, min: 0, max: 121 };// TRG
+  this.rules[5].opcodes[3] = { type: 6, string: [124] };// TBS
+  this.rules[5].opcodes[4] = { type: 5, min: 126, max: 1114111 };// TRG
 
   /* pchar */
   this.rules[6].opcodes = [];
@@ -155,7 +158,7 @@ export default function grammar(){
     str += "slash                          = \"/\"\n";
     str += "path-literal                   = 1*pchar\n";
     str += "template-expression            = \"{\" template-expression-param-name \"}\"\n";
-    str += "template-expression-param-name = 1*pchar\n";
+    str += "template-expression-param-name = 1*( %x00-79 / %x7C / %x7E-10FFFF ) ; every UTF8 character except { and } (from OpenAPI)\n";
     str += "\n";
     str += "; Characters definitions (from RFC 3986)\n";
     str += "pchar               = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n";
@@ -163,6 +166,8 @@ export default function grammar(){
     str += "pct-encoded         = \"%\" HEXDIG HEXDIG\n";
     str += "sub-delims          = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n";
     str += "                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"\n";
+    str += "\n";
+    str += "; Character definitions (from RFC 5234)\n";
     str += "ALPHA               = %x41-5A / %x61-7A   ; A-Z / a-z\n";
     str += "DIGIT               = %x30-39            ; 0-9\n";
     str += "HEXDIG              = DIGIT / \"A\" / \"B\" / \"C\" / \"D\" / \"E\" / \"F\"\n";

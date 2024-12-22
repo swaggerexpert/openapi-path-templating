@@ -41,7 +41,7 @@ describe('parse', function () {
     });
 
     context('/{petId}/', function () {
-      specify.only('should parse and translate', function () {
+      specify('should parse and translate', function () {
         const parseResult = parse('/{petId}/');
 
         const parts = [];
