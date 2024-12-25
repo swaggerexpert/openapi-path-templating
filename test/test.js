@@ -4,12 +4,12 @@ import { test } from '../src/index.js';
 
 describe('test', function () {
   it('should detect as path template', function () {
-    assert.isTrue(test('/{path}'));
     assert.isTrue(test('/{path}/')); // trailing slash is allowed
     assert.isTrue(test('/pets/{petId}'));
     assert.isTrue(test('/{entity}/me'));
     assert.isTrue(test('/books/{id}'));
     assert.isTrue(test('/a{test}'));
+    assert.isTrue(test('/foo/bar/{baz}/test/{foo_id}/baz/{bar_id}'));
     assert.isTrue(test('/{test}a'));
     assert.isTrue(test('/range({x},{y})')); // parentheses are allowed
     assert.isTrue(test('/range({x},{y})/secondRange({x},{y})')); // repeated parameter names are allowed
@@ -29,9 +29,24 @@ describe('test', function () {
     assert.isTrue(test('/users/{user-id}'));
     assert.isTrue(test('/{❤️}'));
     assert.isTrue(test('/{%}'));
-    // RFC 6570 operators
+    assert.isTrue(test('/{foo:}'));
+    assert.isTrue(test('/{foo:bar}'));
+    assert.isTrue(test('/{=bar}'));
+    assert.isTrue(test('/{$bar}'));
+    assert.isTrue(test('/{~bar}'));
+    assert.isTrue(test('/{#bar}'));
+    assert.isTrue(test('/{?bar}'));
+    assert.isTrue(test('/{/bar}'));
+    assert.isTrue(test('/{foo bar}'));
+    assert.isTrue(test('/{|bar}'));
+    assert.isTrue(test('/{^bar}'));
+    assert.isTrue(test('/{`bar}'));
+    // RFC 6570 operators are allowed
     assert.isTrue(test('/{y,x}'), '/{y,x}');
     assert.isTrue(test('/{count*}'));
+    assert.isTrue(test('/{;bar}'));
+    assert.isTrue(test('/{&bar}'));
+    assert.isTrue(test('/{.bar}'));
   });
 
   it('should not detect expression', function () {
@@ -46,22 +61,6 @@ describe('test', function () {
     assert.isFalse(test('/#baz'));
     // special characters in literals are not allowed
     assert.isFalse(test('/❤️'));
-    // special characters in parameters names are not allowed
-    assert.isFalse(test('/{foo:baz}'));
-    assert.isFalse(test('/{=baz}'));
-    assert.isFalse(test('/{$baz}'));
-    assert.isFalse(test('/{~baz}'));
-    assert.isFalse(test('/{#baz}'));
-    assert.isFalse(test('/{?baz}'));
-    assert.isFalse(test('/{/baz}'));
-    assert.isFalse(test('/{foo baz}'));
-    assert.isFalse(test('/{|baz}'));
-    assert.isFalse(test('/{^baz}'));
-    assert.isFalse(test('/{`baz}'));
-    // RFC 6570 operators
-    assert.isFalse(test('/{;baz}'));
-    assert.isFalse(test('/{&baz}'));
-    assert.isFalse(test('/{.baz}'));
     // invalid types
     assert.isFalse(test(1));
     assert.isFalse(test(null));

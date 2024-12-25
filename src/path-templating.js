@@ -7,13 +7,13 @@ export default function grammar(){
   // SUMMARY
   //      rules = 13
   //       udts = 0
-  //    opcodes = 65
+  //    opcodes = 66
   //        ---   ABNF original opcodes
   //        ALT = 7
   //        CAT = 4
   //        REP = 5
   //        RNM = 16
-  //        TLS = 27
+  //        TLS = 28
   //        TBS = 1
   //        TRG = 5
   //        ---   SABNF superset opcodes
@@ -82,10 +82,11 @@ export default function grammar(){
   /* template-expression-param-name */
   this.rules[5].opcodes = [];
   this.rules[5].opcodes[0] = { type: 3, min: 1, max: Infinity };// REP
-  this.rules[5].opcodes[1] = { type: 1, children: [2,3,4] };// ALT
+  this.rules[5].opcodes[1] = { type: 1, children: [2,3,4,5] };// ALT
   this.rules[5].opcodes[2] = { type: 5, min: 0, max: 121 };// TRG
   this.rules[5].opcodes[3] = { type: 6, string: [124] };// TBS
   this.rules[5].opcodes[4] = { type: 5, min: 126, max: 1114111 };// TRG
+  this.rules[5].opcodes[5] = { type: 7, string: [122] };// TLS
 
   /* pchar */
   this.rules[6].opcodes = [];
@@ -158,7 +159,7 @@ export default function grammar(){
     str += "slash                          = \"/\"\n";
     str += "path-literal                   = 1*pchar\n";
     str += "template-expression            = \"{\" template-expression-param-name \"}\"\n";
-    str += "template-expression-param-name = 1*( %x00-79 / %x7C / %x7E-10FFFF ) ; every UTF8 character except { and } (from OpenAPI)\n";
+    str += "template-expression-param-name = 1*( %x00-79 / %x7C / %x7E-10FFFF / \"z\" ) ; every UTF8 character except { and } (from OpenAPI)\n";
     str += "\n";
     str += "; Characters definitions (from RFC 3986)\n";
     str += "pchar               = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n";
