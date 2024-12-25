@@ -30,17 +30,17 @@ describe('test', function () {
     assert.isTrue(test('/{❤️}'));
     assert.isTrue(test('/{%}'));
     assert.isTrue(test('/{foo:}'));
-    assert.isTrue(test('/{foo:bar}'));
-    assert.isTrue(test('/{=bar}'));
-    assert.isTrue(test('/{$bar}'));
-    assert.isTrue(test('/{~bar}'));
-    assert.isTrue(test('/{#bar}'));
-    assert.isTrue(test('/{?bar}'));
-    assert.isTrue(test('/{/bar}'));
-    assert.isTrue(test('/{foo bar}'));
-    assert.isTrue(test('/{|bar}'));
-    assert.isTrue(test('/{^bar}'));
-    assert.isTrue(test('/{`bar}'));
+    assert.isTrue(test('/{foo:baz}'));
+    assert.isTrue(test('/{=baz}'));
+    assert.isTrue(test('/{$baz}'));
+    assert.isTrue(test('/{~baz}'));
+    assert.isTrue(test('/{#baz}'));
+    assert.isTrue(test('/{?baz}'));
+    assert.isTrue(test('/{/baz}'));
+    assert.isTrue(test('/{foo baz}'));
+    assert.isTrue(test('/{|baz}'));
+    assert.isTrue(test('/{^baz}'));
+    assert.isTrue(test('/{`baz}'));
     // RFC 6570 operators are allowed
     assert.isTrue(test('/{y,x}'), '/{y,x}');
     assert.isTrue(test('/{count*}'));
