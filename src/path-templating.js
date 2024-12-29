@@ -153,6 +153,7 @@ export default function grammar(){
   this.toString = function toString(){
     let str = "";
     str += "; OpenAPI Path Templating ABNF syntax\n";
+    str += "; variant of https://datatracker.ietf.org/doc/html/rfc3986#section-3.3\n";
     str += "path-template                  = slash *( path-segment slash ) [ path-segment ]\n";
     str += "path-segment                   = 1*( path-literal / template-expression )\n";
     str += "slash                          = \"/\"\n";
@@ -160,14 +161,17 @@ export default function grammar(){
     str += "template-expression            = \"{\" template-expression-param-name \"}\"\n";
     str += "template-expression-param-name = 1*( %x00-7A / %x7C / %x7E-10FFFF ) ; every UTF8 character except { and } (from OpenAPI)\n";
     str += "\n";
-    str += "; Characters definitions (from RFC 3986)\n";
+    str += "; https://datatracker.ietf.org/doc/html/rfc3986#section-3.3\n";
     str += "pchar               = unreserved / pct-encoded / sub-delims / \":\" / \"@\"\n";
     str += "unreserved          = ALPHA / DIGIT / \"-\" / \".\" / \"_\" / \"~\"\n";
+    str += "                    ; https://datatracker.ietf.org/doc/html/rfc3986#section-2.3\n";
     str += "pct-encoded         = \"%\" HEXDIG HEXDIG\n";
+    str += "                    ; https://datatracker.ietf.org/doc/html/rfc3986#section-2.1\n";
     str += "sub-delims          = \"!\" / \"$\" / \"&\" / \"'\" / \"(\" / \")\"\n";
     str += "                    / \"*\" / \"+\" / \",\" / \";\" / \"=\"\n";
+    str += "                    ; https://datatracker.ietf.org/doc/html/rfc3986#section-2.2\n";
     str += "\n";
-    str += "; Characters definitions (from RFC 5234)\n";
+    str += "; https://datatracker.ietf.org/doc/html/rfc5234#appendix-B.1\n";
     str += "ALPHA               = %x41-5A / %x61-7A   ; A-Z / a-z\n";
     str += "DIGIT               = %x30-39            ; 0-9\n";
     str += "HEXDIG              = DIGIT / \"A\" / \"B\" / \"C\" / \"D\" / \"E\" / \"F\"\n";
