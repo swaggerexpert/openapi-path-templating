@@ -1,7 +1,7 @@
 {
   "name": "openapi-path-templating",
   "version": "2.0.2",
-  "description": "OpenAPI Path Templating parser, validator and resolver.",
+  "description": "OpenAPI Path Templating parser, validator, resolver and matcher.",
   "main": "./cjs/index.cjs",
   "types": "./types/index.d.ts",
   "exports": {
@@ -41,7 +41,9 @@
     "templating",
     "parser",
     "validator",
-    "resolver"
+    "resolver",
+    "matcher",
+    "matching"
   ],
   "author": "Vladimír Gorej <vladimir.gorej@gmail.com>",
   "license": "Apache-2.0",

@@ -11,7 +11,7 @@
 Each template expression in the path MUST correspond to a path parameter that is included in the [Path Item](https://spec.openapis.org/oas/v3.1.1.html#path-item-object) itself and/or in each of the Path Item's [Operations](https://spec.openapis.org/oas/v3.1.1.html#operation-object).
 An exception is if the path item is empty, for example due to ACL constraints, matching path parameters are not required.
 
-`openapi-path-templating` is a **parser**, **validator**, and **resolver** for OpenAPI Path Templating,
+`openapi-path-templating` is a **parser**, **validator**, **resolver** and **matcher** for OpenAPI Path Templating,
 which played a [foundational role](https://github.com/OAI/OpenAPI-Specification/pull/4244) in defining the official ANBF grammar for OpenAPI Path Templating.
 
 It supports Path Templating defined in following OpenAPI specification versions:
@@ -47,6 +47,7 @@ It supports Path Templating defined in following OpenAPI specification versions:
     - [Parsing](#parsing)
     - [Validation](#validation)
     - [Resolution](#resolution)
+    - [Matching](#matching)
     - [Grammar](#grammar)
 - [More about OpenAPI Path Templating](#more-about-openapi-path-templating)
 - [License](#license)
@@ -64,7 +65,7 @@ You can install `openapi-path-templating` using `npm`:
 
 ### Usage
 
-`openapi-path-templating` currently supports **parsing**, **validation** and **resolution**.
+`openapi-path-templating` currently supports **parsing**, **validation**, **resolution** and **matching**.
 Both parser and validator are based on a superset of [ABNF](https://www.rfc-editor.org/rfc/rfc5234) ([SABNF](https://github.com/ldthomas/apg-js2/blob/master/SABNF.md))
 and use [apg-lite](https://github.com/ldthomas/apg-lite) parser generator.
 
@@ -211,6 +212,27 @@ import { resolve } from 'openapi-path-templating';
 resolve('/pets/{petId}', { petId: '/?#' }, {
   encoder: (component) => component, // no encoding
 }); // => "/pets//?#"
+```
+
+#### Matching
+
+Path templating matching in OpenAPI prioritizes concrete paths over parameterized ones,
+treats paths with identical structures but different parameter names as invalid,
+and considers paths with overlapping patterns that could match the same request as potentially ambiguous.
+
+##### Predicates
+
+**isIdentical**
+
+Determines whether two path templates are structurally identical, meaning they have the same sequence
+of literals and template expressions, regardless of template expression names. In the OpenAPI context,
+such identical paths are considered invalid due to potential conflicts in routing.
+
+```js
+import { isIdentical } from 'openapi-path-templating';
+
+isIdentical('/pets/{petId}', '/pets/{name}'); // => true
+isIdentical('/pets/{petId}', '/animals/{name}'); // => false
 ```
 
 #### Grammar

@@ -51,3 +51,4 @@ export function test(pathTemplate: string, options?: TestOptions): boolean;
 export function resolve(pathTemplate: string, parameters: Parameters, options?: ResolveOptions): string;
 export function encodePathComponent(parameterValue: string): string;
 export function Grammar(): Grammar;
+export function isIdentical(pathTemplate1: string, pathTemplate2: string): boolean;
