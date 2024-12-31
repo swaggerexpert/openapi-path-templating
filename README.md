@@ -222,7 +222,7 @@ and considers paths with overlapping patterns that could match the same request 
 
 ##### Predicates
 
-**isIdentical**
+`isIdentical`
 
 Determines whether two path templates are structurally identical, meaning they have the same sequence
 of literals and template expressions, regardless of template expression names. In the OpenAPI context,
