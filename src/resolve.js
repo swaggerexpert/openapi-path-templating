@@ -35,7 +35,7 @@ const resolve = (pathTemplate, parameters, options = {}) => {
     .filter(([type]) => significantTypes.includes(type))
     .map(([type, value]) => {
       if (type === 'template-expression-param-name') {
-        return Object.hasOwn(parameters, value)
+        return Object.prototype.hasOwnProperty.call(parameters, value)
           ? mergedOptions.encoder(parameters[value], value)
           : `{${value}}`;
       }
