@@ -47,6 +47,7 @@ It supports Path Templating defined in following OpenAPI specification versions:
     - [Parsing](#parsing)
     - [Validation](#validation)
     - [Resolution](#resolution)
+    - [Normalization](#normalization)
     - [Matching](#matching)
     - [Grammar](#grammar)
 - [More about OpenAPI Path Templating](#more-about-openapi-path-templating)
@@ -214,13 +215,16 @@ resolve('/pets/{petId}', { petId: '/?#' }, {
 }); // => "/pets//?#"
 ```
 
+#### Normalization
+
+
 #### Matching
 
 Path templating matching in OpenAPI prioritizes concrete paths over parameterized ones,
 treats paths with identical structures but different parameter names as invalid,
 and considers paths with overlapping patterns that could match the same request as potentially ambiguous.
 
-##### Predicates
+##### Equivalence
 
 `isIdentical`
 
@@ -233,6 +237,22 @@ import { isIdentical } from 'openapi-path-templating';
 
 isIdentical('/pets/{petId}', '/pets/{name}'); // => true
 isIdentical('/pets/{petId}', '/animals/{name}'); // => false
+```
+
+By default, extensive [normalization](#normalization) prior to comparison is used to produce a normalized form of the path template.
+
+```js
+import { isIdentical, normalize, identityNormalizer } from 'openapi-path-templating';
+
+// default behavior
+isIdentical('/API/%2faPi/%7bsection%7d/./../profile', '/API/%2FaPi/profile'); // => true
+isIdentical('/api/{userId}/account/Account', '/api/{userId}/profile/../account/%41ccount'); // => true
+// equivalent to above
+isIdentical('/API/%2faPi/%7bsection%7d/./../profile', '/API/%2FaPi/profile', { normalizer: normalize }); // => true
+isIdentical('/api/{userId}/account/Account', '/api/{userId}/profile/../account/%41ccount', { normalizer: normalize }); // => true
+// no normalization
+isIdentical('/API/%2faPi/%7bsection%7d/./../profile', '/API/%2FaPi/profile', { normalizer: identityNormalizer }); // => false
+isIdentical('/api/{userId}/account/Account', '/api/{userId}/profile/../account/%41ccount', { normalizer: identityNormalizer }); // => false
 ```
 
 #### Grammar
