@@ -6,6 +6,10 @@ describe('normalization', function () {
   context('identity normalization', function () {
     specify('should avoid path template normalization', function () {
       assert.strictEqual(identityNormalizer('/a/b/c'), '/a/b/c');
+      assert.strictEqual(
+        identityNormalizer('/API/%2faPi/%7bsection%7d/./../profile'),
+        '/API/%2faPi/%7bsection%7d/./../profile',
+      );
     });
 
     specify('should return original path template if parsing fails', function () {

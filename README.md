@@ -217,6 +217,80 @@ resolve('/pets/{petId}', { petId: '/?#' }, {
 
 #### Normalization
 
+Normalization of OpenAPI Path Template is a process of transforming the path template into its normalized form.
+Normalization is used to compare two path templates for equivalence and is based on **Syntax-Based Normalization** as defined in [RFC 3986, section 6.2.2](https://datatracker.ietf.org/doc/html/rfc3986#section-6.2.2).
+
+##### Syntax-Based normalization
+
+Syntax-Based normalization is a process of transforming the path template into its normalized form using
+a fixed set of normalizers in following order:
+
+- [Case normalization](#case-normalization)
+- [Percent-Encoding normalization](#percent-encoding-normalization)
+- [Path segment normalization](#path-segment-normalization)
+
+```js
+import { normalize } from '@swaggerexpert/openapi-path-templating';
+
+normalize('/api/{userId}/profile/../account/%41ccount'); // => '/api/{userId}/account/Account'
+```
+
+Syntax-Based normalization is a default normalization strategy used by this library.
+
+
+###### No normalization
+
+Noop normalizer that acts as identity function. Performs no transformations on the path template
+and returns it as is.
+
+```js
+import { identityNormalizer } from '@swaggerexpert/openapi-path-templating';
+
+identityNormalizer('/API/%2faPi/%7bsection%7d/./../profile'); // => '/API/%2faPi/%7bsection%7d/./../profile'
+```
+
+###### Case normalization
+
+For all path templates, the hexadecimal digits within a percent-encoding
+triplet (e.g., `"%3a"` versus `"%3A"`) are case-insensitive and therefore
+should be normalized to use uppercase letters for the digits A-F.
+
+```js
+import { caseNormalizer } from '@swaggerexpert/openapi-path-templating';
+
+caseNormalizer('/api/{userId}/profile/%7bsection%7d'); // => '/api/{userId}/profile/%7Bsection%7D'
+```
+
+###### Percent-Encoding normalization
+
+The percent-encoding mechanism is a frequent source of
+variance among otherwise identical path templates. In addition to the case
+normalization issue noted above, some path template producers percent-encode
+octets that do not require percent-encoding, resulting in path templates that
+are equivalent to their non-encoded counterparts. These path templates should
+be normalized by decoding any percent-encoded octet that corresponds
+to an unreserved character.
+
+```js
+import { percentEndingNormalizer } from '@swaggerexpert/openapi-path-templating';
+
+percentEndingNormalizer('/api/%7BuserId%7D/profile/%41ccount/{account}'); // => '/api/%7BuserId%7D/profile/Account/{account}'
+```
+
+###### Path segment normalization
+
+The complete path segments `"."` and `".."` are intended for use
+within path templates and are removed as part of
+the reference resolution process. Path template segment normalizer removes
+dot-segments by applying the [remove_dot_segments](https://datatracker.ietf.org/doc/html/rfc3986#section-5.2.4) algorithm to the path template.
+
+```js
+import { pathSegmentNormalizer } from '@swaggerexpert/openapi-path-templating';
+
+pathSegmentNormalizer('/api/{userId}/./profile/../account'); // => '/api/{userId}/account'
+```
+
+**NOTE**: note that all normalizers acts as identity functions when invalid path templates are provided.
 
 #### Matching
 
@@ -231,6 +305,12 @@ and considers paths with overlapping patterns that could match the same request 
 Determines whether two path templates are structurally identical, meaning they have the same sequence
 of literals and template expressions, regardless of template expression names. In the OpenAPI context,
 such identical paths are considered invalid due to potential conflicts in routing.
+
+Testing path templates for equality is normally based on pair comparison of the
+characters that make up the strings, starting from the first and
+proceeding until both strings are exhausted and all characters are
+found to be equal, until a pair of characters compares unequal, or
+until one of the strings is exhausted before the other. More in [RFC 3986, section 6.2.1](https://datatracker.ietf.org/doc/html/rfc3986#section-6.2.1).
 
 ```js
 import { isIdentical } from 'openapi-path-templating';
