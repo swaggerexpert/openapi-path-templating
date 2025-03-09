@@ -74,6 +74,23 @@ describe('normalization', function () {
         '/mid/6',
         'Should handle RFC 3986 example 2',
       );
+
+      // test cases 11: https://gist.github.com/rdlowrey/5f56cc540099de9d5006
+      assert.strictEqual(pathSegmentNormalizer('/../bar'), '/bar');
+      assert.strictEqual(pathSegmentNormalizer('/./bar'), '/bar');
+      assert.strictEqual(pathSegmentNormalizer('/.././bar'), '/bar');
+      assert.strictEqual(pathSegmentNormalizer('/.././bar'), '/bar');
+      assert.strictEqual(pathSegmentNormalizer('/foo/./bar'), '/foo/bar');
+      assert.strictEqual(pathSegmentNormalizer('/bar/./'), '/bar/');
+      assert.strictEqual(pathSegmentNormalizer('/.'), '/');
+      assert.strictEqual(pathSegmentNormalizer('/bar/.'), '/bar/');
+      assert.strictEqual(pathSegmentNormalizer('/foo/../bar'), '/bar');
+      assert.strictEqual(pathSegmentNormalizer('/bar/../'), '/');
+      assert.strictEqual(pathSegmentNormalizer('/..'), '/');
+      assert.strictEqual(pathSegmentNormalizer('/bar/..'), '/');
+      assert.strictEqual(pathSegmentNormalizer('/foo/bar/..'), '/foo/');
+      assert.strictEqual(pathSegmentNormalizer('/.'), '/');
+      assert.strictEqual(pathSegmentNormalizer('/..'), '/');
     });
 
     specify('should return original path template if parsing fails', function () {
