@@ -290,7 +290,7 @@ import { pathSegmentNormalizer } from '@swaggerexpert/openapi-path-templating';
 pathSegmentNormalizer('/api/{userId}/./profile/../account'); // => '/api/{userId}/account'
 ```
 
-**NOTE**: note that all normalizers acts as identity functions when invalid path templates are provided.
+**NOTE**: note that all normalizers acts as identity functions when invalid path template is provided.
 
 #### Matching
 
@@ -319,7 +319,7 @@ isIdentical('/pets/{petId}', '/pets/{name}'); // => true
 isIdentical('/pets/{petId}', '/animals/{name}'); // => false
 ```
 
-By default, extensive [normalization](#normalization) prior to comparison is used to produce a normalized form of the path template.
+By default, extensive [normalization](#normalization) prior to comparison is applied to produce a normalized form of the path template.
 
 ```js
 import { isIdentical, normalize, identityNormalizer } from 'openapi-path-templating';
