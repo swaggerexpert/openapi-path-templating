@@ -26,6 +26,7 @@ describe('equivalence', function () {
       assert.isFalse(isIdentical('a', '/b'));
       assert.isFalse(isIdentical('a', 'b'));
       assert.isFalse(isIdentical('', '/'));
+      assert.isFalse(isIdentical('/api/%ZZ/users', '/api/%ZZ/users'));
     });
 
     specify('should handle complex cases correctly', function () {
@@ -54,7 +55,6 @@ describe('equivalence', function () {
         isIdentical('/api/./users/../profile/%41ccount/.././account', '/api/profile/account'),
       );
       assert.isTrue(isIdentical('/api/users/profile', '/api/users/profile'));
-      assert.isTrue(isIdentical('/api/%ZZ/users', '/api/%ZZ/users'));
       assert.isTrue(isIdentical('/pets/%2E/%2E%2E/{petId}', '/{petId}'));
     });
 
@@ -95,7 +95,6 @@ describe('equivalence', function () {
           }),
         );
         assert.isTrue(isIdentical('/api/users/profile', '/api/users/profile', { normalizer }));
-        assert.isTrue(isIdentical('/api/%ZZ/users', '/api/%ZZ/users', { normalizer }));
         assert.isFalse(isIdentical('/pets/%2E/%2E%2E/{petId}', '/{petId}', { normalizer }));
       });
     });
