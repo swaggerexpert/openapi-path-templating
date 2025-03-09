@@ -1,6 +1,6 @@
 {
   "name": "openapi-path-templating",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "OpenAPI Path Templating parser, validator, resolver and matcher.",
   "main": "./cjs/index.cjs",
   "types": "./types/index.d.ts",
