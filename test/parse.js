@@ -4,21 +4,23 @@ import { parse } from '../src/index.js';
 
 describe('parse', function () {
   context('given valid source string', function () {
-    context('/pets/{petId}', function () {
+    context('/pets/{petId}?key=value', function () {
       specify('should parse and translate', function () {
-        const parseResult = parse('/pets/{petId}');
+        const parseResult = parse('/pets/{petId}?key=value');
 
         const parts = [];
         parseResult.ast.translate(parts);
 
         assert.isTrue(parseResult.result.success);
         assert.deepEqual(parts, [
-          ['path-template', '/pets/{petId}'],
+          ['path-template', '/pets/{petId}?key=value'],
           ['slash', '/'],
           ['path-literal', 'pets'],
           ['slash', '/'],
           ['template-expression', '{petId}'],
           ['template-expression-param-name', 'petId'],
+          ['question-mark', '?'],
+          ['query-string', 'key=value']
         ]);
       });
     });
