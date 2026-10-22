@@ -337,7 +337,8 @@ Parameter Objects are path parameters by default, so their `in` field can be omi
 (query, header or cookie parameters) are ignored, so `parameters` of an Operation Object can be provided as they are.
 Template expressions without a Parameter Object use default serialization (`style: 'simple'`, `explode: false`),
 and template expressions without a value, or with a value undefined by RFC 6570 (`undefined`, `null`, empty array or object), are kept unresolved.
-Plain objects are serialized as name/value pairs, and other values as strings.
+Plain objects are serialized as name/value pairs, and other values as strings using `String(value)`.
+Note that `String(date)` depends on the time zone, so pass `date.toISOString()` to serialize dates in ISO 8601 format.
 
 When `parameterObjects` option is provided, even an empty array, all values are encoded according to RFC 6570 rules,
 which differ from the default encoding: percent-encoded values are encoded again, and `[` and `]` are percent-encoded.
