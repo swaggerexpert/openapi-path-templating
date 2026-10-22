@@ -8,3 +8,16 @@ Copyright The Linux Foundation
 Fragments of the specification text are embedded in `README.md`.
 Definition of `template-expression-param-name` ABNF non-terminal is based on the OpenAPI Specification ABNF.
 Copy of the Apache 2.0 license can be found in `LICENSE` file.
+
+Uniform Resource Identifier (URI): Generic Syntax
+Copyright (C) The Internet Society (2005).
+https://www.rfc-editor.org/rfc/rfc3986
+ABNF rules `pchar`, `unreserved`, `pct-encoded` and `sub-delims` (grammar.bnf) and certain texts
+within the README.md file are taken from this document and are subject to the rights, licenses
+and restrictions contained in BCP 78.
+
+Augmented BNF for Syntax Specifications: ABNF
+Copyright (C) The IETF Trust (2008).
+https://www.rfc-editor.org/rfc/rfc5234
+Core ABNF rules `ALPHA`, `DIGIT` and `HEXDIG` (grammar.bnf) are taken from this document
+and are subject to the rights, licenses and restrictions contained in BCP 78.
