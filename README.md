@@ -52,12 +52,14 @@ It supports Path Templating defined in following OpenAPI specification versions:
       - [Tracing](#tracing)
     - [Validation](#validation)
     - [Resolution](#resolution)
+    - [URI Template](#uri-template)
     - [Regular expression](#regular-expression)
     - [Normalization](#normalization)
     - [Matching](#matching)
     - [Errors](#errors)
     - [Grammar](#grammar)
 - [More about OpenAPI Path Templating](#more-about-openapi-path-templating)
+- [Setting up for development](#setting-up-for-development)
 - [License](#license)
 
 
@@ -313,6 +315,75 @@ resolve('/pets/{petId}', { petId: '/?#' }, {
   encoder: (pathSegment) => pathSegment, // no encoding
 }); // => "/pets//?#"
 ```
+
+#### URI Template
+
+Path parameters are serialized according to their `style`, `explode` and `allowReserved` fields,
+which are defined in terms of [RFC 6570 URI Templates](https://www.rfc-editor.org/rfc/rfc6570)
+(see [Appendix C](https://spec.openapis.org/oas/v3.2.0.html#appendix-c-using-rfc6570-based-serialization) of the OpenAPI Specification).
+Resolving a Path Templating with this serialization is done in two steps.
+
+First, Path Templating is converted into a URI Template using [Parameter Objects](https://spec.openapis.org/oas/v3.2.0.html#parameter-object)
+of path parameters by the **toURITemplate** function.
+
+```js
+import { toURITemplate } from 'openapi-path-templating';
+
+toURITemplate('/pets/{petId}', [{ name: 'petId', in: 'path', style: 'matrix', explode: true }]);
+// => { uriTemplate: '/pets/{;petId*}', variables: { petId: 'petId' } }
+```
+
+| Parameter Object field | URI Template |
+|---|---|
+| `style: 'simple'` (default) | `{petId}` |
+| `style: 'label'` | `{.petId}` |
+| `style: 'matrix'` | `{;petId}` |
+| `explode: true` | `{petId*}` |
+| `allowReserved: true` | `{+petId}` (only for `style: 'simple'`, as RFC 6570 allows a single operator) |
+
+Parameter Objects not in path are ignored, and template expressions without a Parameter Object use default serialization.
+Template expression names that are not valid URI Template variable names are percent-encoded,
+and `variables` maps template expression names to URI Template variable names.
+
+```js
+import { toURITemplate } from 'openapi-path-templating';
+
+toURITemplate('/pets/{pet-id}');
+// => { uriTemplate: '/pets/{pet%2Did}', variables: { 'pet-id': 'pet%2Did' } }
+```
+
+Then, the URI Template is expanded by the **expandURITemplate** function, which encodes the values according to RFC 6570 rules.
+
+```js
+import { toURITemplate, expandURITemplate } from 'openapi-path-templating';
+
+const { uriTemplate, variables } = toURITemplate('/pets/{petId}', [
+  { name: 'petId', in: 'path', style: 'matrix', explode: true },
+]);
+
+expandURITemplate(uriTemplate, { [variables.petId]: [3, 4] }); // => '/pets/;petId=3;petId=4'
+```
+
+`expandURITemplate`, **parseURITemplate** and **testURITemplate** work with any URI Template, and are
+**100% compliant** with the [URI Template test suite](https://github.com/uri-templates/uritemplate-test).
+Single quote `'` is allowed in literals, as per [verified erratum 6937](https://www.rfc-editor.org/errata/eid6937).
+
+```js
+import { expandURITemplate, parseURITemplate, testURITemplate } from 'openapi-path-templating';
+
+expandURITemplate('/search{?q,lang}', { q: 'cat dog', lang: 'en' }); // => '/search?q=cat%20dog&lang=en'
+expandURITemplate('{/list*}', { list: ['red', 'green'] }); // => '/red/green'
+expandURITemplate('{+path}', { path: '/foo/bar' }); // => '/foo/bar'
+
+testURITemplate('/search{?q,lang}'); // => true
+testURITemplate('{/id*'); // => false
+testURITemplate('{!id}'); // => false (operator reserved for future extensions)
+
+parseURITemplate('{?q:3}').tree;
+// => { type: 'URITemplate', parts: [{ type: 'Expression', operator: '?', variables: [{ name: 'q', prefix: 3, explode: false }] }] }
+```
+
+Invalid URI Template causes `OpenAPIPathTemplatingParseError` to be thrown by `expandURITemplate`.
 
 #### Regular expression
 
@@ -668,6 +739,21 @@ ALPHA               = %x41-5A / %x61-7A   ; A-Z / a-z
 DIGIT               = %x30-39            ; 0-9
 HEXDIG              = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 ```
+
+## Setting up for development
+
+```sh
+ # Clone with submodules (recommended)
+ $ git clone --recurse-submodules https://github.com/swaggerexpert/openapi-path-templating.git
+
+ # Or initialize submodules after cloning
+ $ git submodule update --init
+
+ # Install dependencies
+ $ npm install
+```
+
+The project uses the [URI Template test suite](https://github.com/uri-templates/uritemplate-test) as a git submodule for testing.
 
 ## License
 
