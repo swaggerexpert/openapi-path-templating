@@ -336,7 +336,8 @@ resolve('/pets/{petId}', { petId: { R: 100, G: 200 } }, { parameterObjects }); /
 Parameter Objects are path parameters by default, so their `in` field can be omitted. Parameter Objects with `in` other than `path`
 (query, header or cookie parameters) are ignored, so `parameters` of an Operation Object can be provided as they are.
 Template expressions without a Parameter Object use default serialization (`style: 'simple'`, `explode: false`),
-and template expressions without a value are kept unresolved.
+and template expressions without a value, or with a value undefined by RFC 6570 (`undefined`, `null`, empty array or object), are kept unresolved.
+Plain objects are serialized as name/value pairs, and other values as strings.
 
 When `parameterObjects` option is provided, even an empty array, all values are encoded according to RFC 6570 rules,
 which differ from the default encoding: percent-encoded values are encoded again, and `[` and `]` are percent-encoded.
@@ -369,7 +370,7 @@ toURITemplate('/pets/{petId}', [{ name: 'petId', style: 'matrix', explode: true 
 | `explode: true` | `{petId*}` |
 | `allowReserved: true` | `{+petId}` (only for `style: 'simple'`, as RFC 6570 allows a single operator) |
 
-Template expression names that are not valid URI Template variable names are percent-encoded,
+Template expression names that are not valid URI Template variable names (e.g. containing `-`) are percent-encoded,
 as described in [Appendix C.4.4](https://spec.openapis.org/oas/v3.2.0.html#illegal-variable-names-as-parameter-names).
 Values for such variables must be provided under the percent-encoded names, which [parameter serialization](#parameter-serialization) does automatically.
 

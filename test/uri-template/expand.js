@@ -18,6 +18,30 @@ describe('expandURITemplate', function () {
     assert.strictEqual(expandURITemplate('{?a,b}', { a: null, b: [] }), '');
   });
 
+  specify('should encode names of associative array pairs as values', function () {
+    assert.strictEqual(
+      expandURITemplate('{?keys*}', { keys: { 'a&b': '1', 'c/d': 'x' } }),
+      '?a%26b=1&c%2Fd=x',
+    );
+    assert.strictEqual(expandURITemplate('{;keys*}', { keys: { 'a;b': '1' } }), ';a%3Bb=1');
+  });
+
+  specify('should expand non-plain objects as strings', function () {
+    assert.strictEqual(expandURITemplate('{?d}', { d: new Date(0) }).startsWith('?d='), true);
+    assert.strictEqual(
+      expandURITemplate('{?o*}', { o: Object.assign(Object.create(null), { a: 1 }) }),
+      '?a=1',
+    );
+  });
+
+  specify('should consider null variables as no variables', function () {
+    assert.strictEqual(expandURITemplate('/{x}', null), '/');
+  });
+
+  specify('should throw on malformed Unicode', function () {
+    assert.throws(() => expandURITemplate('{x}', { x: '\uD800' }), OpenAPIPathTemplatingError);
+  });
+
   specify('should throw on invalid URI Template', function () {
     assert.throws(() => expandURITemplate('{/id*', {}), OpenAPIPathTemplatingParseError);
   });

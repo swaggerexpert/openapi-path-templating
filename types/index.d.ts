@@ -166,7 +166,7 @@ interface ResolveOptions {
   /**
    * Serializes values using Parameter Objects as defined by RFC 6570; can't be combined with encoder.
    */
-  readonly parameterObjects?: readonly ParameterObject[];
+  readonly parameterObjects?: readonly ParameterObject[] | null;
 }
 
 /**
@@ -174,7 +174,7 @@ interface ResolveOptions {
  */
 export type URITemplate = string;
 
-export function toURITemplate(pathTemplate: PathTemplate, parameterObjects?: readonly ParameterObject[]): URITemplate;
+export function toURITemplate(pathTemplate: PathTemplate, parameterObjects?: readonly ParameterObject[] | null): URITemplate;
 
 export interface ParameterObject {
   readonly name: string;
@@ -186,7 +186,7 @@ export interface ParameterObject {
 
 export function parseURITemplate(uriTemplate: URITemplate): URITemplateParseResult;
 export function testURITemplate(uriTemplate: string): uriTemplate is URITemplate;
-export function expandURITemplate(uriTemplate: URITemplate, variables?: URITemplateVariables): string;
+export function expandURITemplate(uriTemplate: URITemplate, variables?: URITemplateVariables | null): string;
 
 export interface URITemplateParseResult {
   readonly result: ParseResult['result'];

@@ -43,8 +43,11 @@ describe('toURITemplate', function () {
   specify('should percent-encode illegal variable names', function () {
     assert.strictEqual(
       toURITemplate('/{pet-id}/{❤️}/{a.b}'),
-      '/{pet%2Did}/{%E2%9D%A4%EF%B8%8F}/{a%2Eb}',
+      '/{pet%2Did}/{%E2%9D%A4%EF%B8%8F}/{a.b}',
     );
+    // dot is allowed only between other characters
+    assert.strictEqual(toURITemplate('/{.a}/{a.}/{a..b}'), '/{%2Ea}/{a%2E}/{a%2E.b}');
+    assert.throws(() => toURITemplate('/{\uD800}'), OpenAPIPathTemplatingParseError);
   });
 
   specify('should keep path literals', function () {

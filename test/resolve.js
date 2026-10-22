@@ -111,6 +111,47 @@ describe('resolve', function () {
       );
     });
 
+    specify('should use template expression names in serialized values', function () {
+      const parameterObjects = [{ name: 'user-id', style: 'matrix' }];
+
+      assert.strictEqual(
+        resolve('/users/{user-id}', { 'user-id': 5 }, { parameterObjects }),
+        '/users/;user-id=5',
+      );
+    });
+
+    specify('should keep template expressions with undefined values', function () {
+      ['', undefined, null, [], {}].slice(1).forEach((value) => {
+        assert.strictEqual(
+          resolve('/pets/{id}', { id: value }, { parameterObjects: [] }),
+          '/pets/{id}',
+        );
+      });
+      assert.strictEqual(resolve('/pets/{id}', { id: '' }, { parameterObjects: [] }), '/pets/');
+    });
+
+    specify('should serialize non-plain objects as strings', function () {
+      assert.strictEqual(
+        resolve(
+          '/pets/{id}',
+          {
+            id: new (class {
+              toString = () => 'y';
+            })(),
+          },
+          { parameterObjects: [] },
+        ),
+        '/pets/y',
+      );
+    });
+
+    specify('should consider null parameterObjects as not provided', function () {
+      assert.strictEqual(
+        resolve('/pets/{id}', { id: '[x]' }, { parameterObjects: null, encoder: String }),
+        '/pets/[x]',
+      );
+    });
+
     specify('should keep template expressions without values', function () {
       assert.strictEqual(
         resolve('/pets/{petId}/{name}', { petId: 7 }, { parameterObjects: [] }),
