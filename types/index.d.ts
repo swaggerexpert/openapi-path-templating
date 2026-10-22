@@ -168,17 +168,12 @@ interface ResolveOptions {
 /**
  * Regular expression
  */
-export function toRegExp(pathTemplate: PathTemplate, options?: ToRegExpOptions): ToRegExpResult;
+export function toRegExp(pathTemplate: PathTemplate, options?: ToRegExpOptions): RegExp;
 
 export interface ToRegExpOptions {
   readonly prefix?: boolean;
   readonly optionalTrailingSlash?: boolean;
   readonly caseSensitive?: boolean;
-}
-
-export interface ToRegExpResult {
-  readonly regExp: RegExp;
-  readonly parameters: string[];
 }
 
 /**

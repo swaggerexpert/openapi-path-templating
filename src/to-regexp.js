@@ -27,15 +27,12 @@ const toRegExp = (
     });
   }
 
-  const parameters = [];
   const hasOptionalTrailingSlash = optionalTrailingSlash && pathTemplate !== '/';
   const path = hasOptionalTrailingSlash ? pathTemplate.replace(/\/$/, '') : pathTemplate;
   // valid path template consists of template expressions and path literals only
-  let source = path.replace(/\{([^}]+)\}|[^{]+/g, (match, name) => {
-    if (name === undefined) return literalToRegExp(match);
-    parameters.push(name);
-    return TEMPLATE_EXPRESSION;
-  });
+  let source = path.replace(/\{[^}]+\}|[^{]+/g, (match) =>
+    match.startsWith('{') ? TEMPLATE_EXPRESSION : literalToRegExp(match),
+  );
 
   if (hasOptionalTrailingSlash) source += '\\/?';
 
@@ -46,10 +43,7 @@ const toRegExp = (
     source += '(?=\\/|$)';
   }
 
-  return {
-    regExp: new RegExp(`^${source}`, caseSensitive ? '' : 'i'),
-    parameters,
-  };
+  return new RegExp(`^${source}`, caseSensitive ? '' : 'i');
 };
 
 export default toRegExp;

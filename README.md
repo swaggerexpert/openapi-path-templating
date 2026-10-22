@@ -314,15 +314,15 @@ resolve('/pets/{petId}', { petId: '/?#' }, {
 #### Regular expression
 
 Path Templating can be converted into a regular expression by importing the **toRegExp** function and calling it.
-Regular expression has a capturing group for every template expression, and names of the template expressions
-are listed in `parameters` in the same order as the capturing groups.
+Regular expression has a capturing group for every template expression, in the same order as template expressions
+appear in the path template.
 
 ```js
 import { toRegExp } from 'openapi-path-templating';
 
-const { regExp, parameters } = toRegExp('/pets/{petId}/owners/{ownerId}');
+const regExp = toRegExp('/pets/{petId}/owners/{ownerId}');
 
-parameters; // => ['petId', 'ownerId']
+regExp.test('/pets/1/owners/2'); // => true
 regExp.exec('/pets/1/owners/2'); // => ['/pets/1/owners/2', '1', '2']
 regExp.test('/pets/1/owners/2/toys'); // => false
 ```
@@ -334,7 +334,7 @@ Trailing slash is significant, `/pets` and `/pets/` are different paths.
 ```js
 import { toRegExp } from 'openapi-path-templating';
 
-const { regExp } = toRegExp('/pets/{petId}');
+const regExp = toRegExp('/pets/{petId}');
 
 regExp.exec('/pets/a%2Fb'); // => ['/pets/a%2Fb', 'a%2Fb']
 regExp.test('/pets/a/b'); // => false
@@ -350,9 +350,9 @@ Following options are supported:
 ```js
 import { toRegExp } from 'openapi-path-templating';
 
-toRegExp('/api/{version}', { prefix: true }).regExp.exec('/api/v1/pets'); // => ['/api/v1', 'v1']
-toRegExp('/pets', { optionalTrailingSlash: true }).regExp.test('/pets/'); // => true
-toRegExp('/Pets', { caseSensitive: false }).regExp.test('/pets'); // => true
+toRegExp('/api/{version}', { prefix: true }).exec('/api/v1/pets'); // => ['/api/v1', 'v1']
+toRegExp('/pets', { optionalTrailingSlash: true }).test('/pets/'); // => true
+toRegExp('/Pets', { caseSensitive: false }).test('/pets'); // => true
 ```
 
 Invalid path template causes `OpenAPIPathTemplatingParseError` to be thrown.

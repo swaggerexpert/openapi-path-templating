@@ -8,23 +8,26 @@ import {
 } from '../src/index.js';
 
 describe('toRegExp', function () {
-  specify('should create regular expression and list of parameters', function () {
-    const { regExp, parameters } = toRegExp('/pets/{petId}/owners/{ownerId}');
+  specify(
+    'should create regular expression with capturing group for every template expression',
+    function () {
+      const regExp = toRegExp('/pets/{petId}/owners/{ownerId}');
 
-    assert.instanceOf(regExp, RegExp);
-    assert.deepEqual(parameters, ['petId', 'ownerId']);
-    assert.deepEqual(regExp.exec('/pets/1/owners/2').slice(1), ['1', '2']);
-  });
+      assert.instanceOf(regExp, RegExp);
+      assert.deepEqual(regExp.exec('/pets/1/owners/2').slice(1), ['1', '2']);
+      assert.isUndefined(regExp.exec('/pets/1/owners/2').groups);
+    },
+  );
 
   specify('should match template expressions within path segment', function () {
-    const { regExp } = toRegExp('/files/{name}.{ext}');
+    const regExp = toRegExp('/files/{name}.{ext}');
 
     assert.deepEqual(regExp.exec('/files/report.tar.gz').slice(1), ['report.tar', 'gz']);
     assert.isFalse(regExp.test('/files/report'));
   });
 
   specify('should not match "/", "?" and "#" by template expression', function () {
-    const { regExp } = toRegExp('/pets/{petId}');
+    const regExp = toRegExp('/pets/{petId}');
 
     assert.isFalse(regExp.test('/pets/a/b'));
     assert.isFalse(regExp.test('/pets/1?offset=0'));
@@ -33,7 +36,7 @@ describe('toRegExp', function () {
   });
 
   specify('should match percent-encoded octets by template expression as a whole', function () {
-    const { regExp } = toRegExp('/pets/{petId}');
+    const regExp = toRegExp('/pets/{petId}');
 
     assert.deepEqual(regExp.exec('/pets/a%2Fb').slice(1), ['a%2Fb']);
     assert.isFalse(regExp.test('/pets/50%'));
@@ -41,7 +44,7 @@ describe('toRegExp', function () {
   });
 
   specify('should escape regular expression syntax in path literals', function () {
-    const { regExp } = toRegExp('/v1.0/$x+*=/{id}');
+    const regExp = toRegExp('/v1.0/$x+*=/{id}');
 
     assert.isTrue(regExp.test('/v1.0/$x+*=/2'));
     assert.isFalse(regExp.test('/v1x0/$x+*=/2'));
@@ -49,27 +52,30 @@ describe('toRegExp', function () {
   });
 
   specify('should match path literals case-sensitively', function () {
-    const { regExp } = toRegExp('/Pets/%2F');
+    const regExp = toRegExp('/Pets/%2F');
 
     assert.isFalse(regExp.test('/pets/%2F'));
     assert.isTrue(regExp.test('/Pets/%2f'));
   });
 
   specify('should distinguish trailing slash', function () {
-    assert.isFalse(toRegExp('/pets').regExp.test('/pets/'));
-    assert.isFalse(toRegExp('/pets/').regExp.test('/pets'));
-    assert.isTrue(toRegExp('/').regExp.test('/'));
-    assert.isFalse(toRegExp('/').regExp.test('/pets'));
+    assert.isFalse(toRegExp('/pets').test('/pets/'));
+    assert.isFalse(toRegExp('/pets/').test('/pets'));
+    assert.isTrue(toRegExp('/').test('/'));
+    assert.isFalse(toRegExp('/').test('/pets'));
   });
 
-  specify('should list parameters in order of appearance', function () {
-    assert.deepEqual(toRegExp('/pets').parameters, []);
-    assert.deepEqual(toRegExp('/pets/{id}/owners/{id}').parameters, ['id', 'id']);
-    assert.deepEqual(toRegExp('/{pet id}/{$1}').parameters, ['pet id', '$1']);
+  specify('should support any template expression names', function () {
+    assert.deepEqual(toRegExp('/{pet-id}/{pet id}/{$1}').exec('/a/b/c').slice(1), ['a', 'b', 'c']);
+    assert.deepEqual(toRegExp('/pets/{id}/owners/{id}').exec('/pets/1/owners/2').slice(1), [
+      '1',
+      '2',
+    ]);
+    assert.lengthOf(toRegExp('/pets').exec('/pets'), 1);
   });
 
   specify('should match paths produced by resolve', function () {
-    const { regExp } = toRegExp('/pets/{id}/owners');
+    const regExp = toRegExp('/pets/{id}/owners');
     const values = ['1', 'a b', 'a/b', 'ä', '%', '50%', '?#', '[]', 'x%2Fy', '😀', '..', "it's"];
 
     values.forEach((value) => {
@@ -82,31 +88,31 @@ describe('toRegExp', function () {
 
   context('given prefix option', function () {
     specify('should match path prefix ending at segment boundary', function () {
-      const { regExp } = toRegExp('/api/{version}', { prefix: true });
+      const regExp = toRegExp('/api/{version}', { prefix: true });
 
       assert.strictEqual(regExp.exec('/api/v1/pets')[0], '/api/v1');
       assert.isTrue(regExp.test('/api/v1'));
       assert.isFalse(regExp.test('/apix/v1'));
-      assert.isTrue(toRegExp('/', { prefix: true }).regExp.test('/pets'));
-      assert.isTrue(toRegExp('/api/', { prefix: true }).regExp.test('/api/pets'));
+      assert.isTrue(toRegExp('/', { prefix: true }).test('/pets'));
+      assert.isTrue(toRegExp('/api/', { prefix: true }).test('/api/pets'));
       assert.isFalse(
-        toRegExp('/api/', { prefix: true, optionalTrailingSlash: true }).regExp.test('/apix'),
+        toRegExp('/api/', { prefix: true, optionalTrailingSlash: true }).test('/apix'),
       );
     });
   });
 
   context('given optionalTrailingSlash option', function () {
     specify('should match optional trailing slash', function () {
-      assert.isTrue(toRegExp('/pets', { optionalTrailingSlash: true }).regExp.test('/pets/'));
-      assert.isTrue(toRegExp('/pets', { optionalTrailingSlash: true }).regExp.test('/pets'));
-      assert.isTrue(toRegExp('/pets/', { optionalTrailingSlash: true }).regExp.test('/pets'));
-      assert.isFalse(toRegExp('/pets', { optionalTrailingSlash: true }).regExp.test('/pets//'));
+      assert.isTrue(toRegExp('/pets', { optionalTrailingSlash: true }).test('/pets/'));
+      assert.isTrue(toRegExp('/pets', { optionalTrailingSlash: true }).test('/pets'));
+      assert.isTrue(toRegExp('/pets/', { optionalTrailingSlash: true }).test('/pets'));
+      assert.isFalse(toRegExp('/pets', { optionalTrailingSlash: true }).test('/pets//'));
     });
   });
 
   context('given caseSensitive option', function () {
     specify('should match path literals case-insensitively', function () {
-      const { regExp } = toRegExp('/Pets/{petId}', { caseSensitive: false });
+      const regExp = toRegExp('/Pets/{petId}', { caseSensitive: false });
 
       assert.deepEqual(regExp.exec('/pets/Rex').slice(1), ['Rex']);
     });
