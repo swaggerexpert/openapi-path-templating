@@ -1,5 +1,4 @@
 import parse from './parse/index.js';
-import ListTranslator from './parse/translators/ListTranslator.js';
 import { createExpressionConverter } from './to-uri-template.js';
 import expandURITemplate from './uri-template/expand.js';
 
@@ -18,8 +17,6 @@ export const encodePathComponent = (pathSegment) => {
 
   return encodeURIComponent(pathSegment).replace(/%5B/g, '[').replace(/%5D/g, ']');
 };
-
-const significantTypes = ['slash', 'path-literal', 'template-expression-param-name'];
 
 /**
  * Serializes parameter value using its Parameter Object, as defined by RFC 6570.
@@ -45,25 +42,24 @@ const resolve = (pathTemplate, parameters, options = {}) => {
     parameterObjects !== undefined
       ? createSerializer(parameterObjects)
       : (options.encoder ?? encodePathComponent);
-  const parseResult = parse(pathTemplate, { translator: new ListTranslator() });
+  const parseResult = parse(pathTemplate);
 
   if (!parseResult.result.success) return pathTemplate;
 
-  const parts = parseResult.tree;
+  const { segments, trailingSlash } = parseResult.tree;
+  const resolvedSegments = segments.map(({ parts }) =>
+    parts
+      .map((part) => {
+        if (part.type === 'PathLiteral') return part.value;
 
-  const resolvedParts = parts
-    .filter(([type]) => significantTypes.includes(type))
-    .map(([type, value]) => {
-      if (type === 'template-expression-param-name') {
-        return Object.prototype.hasOwnProperty.call(parameters, value)
-          ? encoder(parameters[value], value)
-          : `{${value}}`;
-      }
+        return Object.prototype.hasOwnProperty.call(parameters, part.name)
+          ? encoder(parameters[part.name], part.name)
+          : `{${part.name}}`;
+      })
+      .join(''),
+  );
 
-      return value;
-    });
-
-  return resolvedParts.join('');
+  return `/${resolvedSegments.join('/')}${trailingSlash && segments.length > 0 ? '/' : ''}`;
 };
 
 export default resolve;
