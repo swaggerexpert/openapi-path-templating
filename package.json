@@ -4,6 +4,8 @@
   "description": "OpenAPI Path Templating parser, validator, resolver and matcher.",
   "main": "./cjs/index.cjs",
   "types": "./types/index.d.ts",
+  "unpkg": "./dist/openapi-path-templating.browser.min.js",
+  "jsdelivr": "./dist/openapi-path-templating.browser.min.js",
   "exports": {
     ".": {
       "types": "./types/index.d.ts",
@@ -18,10 +20,11 @@
   "scripts": {
     "prepublishOnly": "npm run build",
     "grammar:compile": "node ./scripts/apg-js.js --lite --in=./src/grammar.bnf --out=./src/grammar.js && cd ./src",
-    "build": "npm run grammar:compile && npm run build:es && npm run build:cjs && npm run build:cjs:apg-lite",
+    "build": "npm run grammar:compile && npm run build:es && npm run build:cjs && npm run build:cjs:apg-lite && npm run build:umd:browser",
     "build:es": "cross-env BABEL_ENV=es babel src --out-dir es --extensions '.js' --out-file-extension '.mjs'",
     "build:cjs": "cross-env BABEL_ENV=cjs babel src --out-dir cjs --extensions '.js' --out-file-extension '.cjs'",
     "build:cjs:apg-lite": "cross-env BABEL_ENV=cjs babel node_modules/apg-lite/lib/parser.js --out-file ./cjs/apg-lite.cjs",
+    "build:umd:browser": "cross-env BABEL_ENV=browser webpack --config config/webpack/browser.config.js --progress",
     "test": "mocha",
     "test:watch": "npm-watch test",
     "watch": "npm-watch"
@@ -53,6 +56,7 @@
   "files": [
     "es/",
     "cjs/",
+    "dist/",
     "types/",
     "LICENSE",
     "NOTICE",
@@ -70,12 +74,16 @@
     "@commitlint/cli": "=20.5.0",
     "@commitlint/config-conventional": "=20.5.0",
     "apg-js": "^4.4.0",
+    "babel-loader": "^10.1.1",
     "babel-plugin-module-resolver": "^5.0.3",
     "chai": "=6.2.2",
     "cross-env": "^10.0.0",
     "husky": "=9.1.7",
     "mocha": "=11.7.5",
     "npm-watch": "^0.13.0",
-    "prettier": "^3.1.1"
+    "prettier": "^3.1.1",
+    "terser-webpack-plugin": "^5.6.1",
+    "webpack": "^5.112.0",
+    "webpack-cli": "^7.2.3"
   }
 }

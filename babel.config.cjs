@@ -49,5 +49,20 @@ module.exports = {
         [path.join(__dirname, './scripts/babel-plugin-add-import-extension.cjs'), { extension: 'mjs' }],
       ],
     },
+    browser: {
+      browserslistEnv: "browser-production",
+      presets: [
+        [
+          '@babel/preset-env',
+          {
+            debug: false,
+            modules: 'auto',
+            useBuiltIns: false,
+            forceAllTransforms: false,
+            ignoreBrowserslistConfig: false,
+          },
+        ],
+      ],
+    },
   },
 };
