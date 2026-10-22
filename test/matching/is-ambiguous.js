@@ -2,7 +2,7 @@ import { assert } from 'chai';
 
 import { isAmbiguous, identityNormalizer } from '../../src/index.js';
 
-describe('ambiguity', function () {
+describe('matching', function () {
   context('isAmbiguous', function () {
     specify('should consider path templates ambiguous', function () {
       assert.isTrue(isAmbiguous('/{entity}/me', '/books/{id}'));
