@@ -93,6 +93,19 @@ describe('normalization', function () {
       assert.strictEqual(pathSegmentNormalizer('/..'), '/');
     });
 
+    specify('should treat only complete path segments as dot-segments', function () {
+      assert.strictEqual(pathSegmentNormalizer('/{x}.'), '/{x}.');
+      assert.strictEqual(pathSegmentNormalizer('/..{x}'), '/..{x}');
+      assert.strictEqual(pathSegmentNormalizer('/{x}../b'), '/{x}../b');
+      assert.strictEqual(pathSegmentNormalizer('/a/.{x}/./b'), '/a/.{x}/b');
+    });
+
+    specify('should remove complete path segment preceding ".." segment', function () {
+      assert.strictEqual(pathSegmentNormalizer('/a{x}/..'), '/');
+      assert.strictEqual(pathSegmentNormalizer('/b/a{x}/../'), '/b/');
+      assert.strictEqual(pathSegmentNormalizer('/{x}{y}/../c'), '/c');
+    });
+
     specify('should return original path template if parsing fails', function () {
       assert.strictEqual(pathSegmentNormalizer('test1/test2'), 'test1/test2');
     });

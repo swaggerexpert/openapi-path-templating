@@ -1,63 +1,40 @@
 import parse from '../parse/index.js';
-import ListTranslator from '../parse/translators/ListTranslator.js';
+import stringify from '../stringify.js';
 
 /**
  * Implementation of https://datatracker.ietf.org/doc/html/rfc3986#section-6.2.2.3
+ * Dot-segments are complete path segments consisting of `.` or `..` path literal.
  */
 
-const significantTypes = ['slash', 'path-literal', 'template-expression'];
+const dotSegment = ({ parts }) =>
+  parts.length === 1 && parts[0].type === 'PathLiteral' && ['.', '..'].includes(parts[0].value)
+    ? parts[0].value
+    : null;
 
 const pathSegmentNormalizer = (pathTemplate) => {
-  const parseResult = parse(pathTemplate, { translator: new ListTranslator() });
+  const parseResult = parse(pathTemplate);
 
   if (!parseResult.result.success) return pathTemplate;
 
-  const parts = parseResult.tree;
-  const stack = [];
+  const { segments, trailingSlash } = parseResult.tree;
+  const output = [];
+  // path ending with dot-segment ends with slash
+  let endsWithSlash = trailingSlash;
 
-  for (let i = 0; i < parts.length; i += 1) {
-    let [type, value] = parts[i];
+  segments.forEach((segment, index) => {
+    const isLast = index === segments.length - 1;
 
-    // remove `template-expression-param-name` and treat `template-expression` as `path-literal`
-    if (type === 'template-expression-param-name') {
-      continue; // skip this segment
-    }
-
-    if (type === 'path-literal' || type === 'template-expression') {
-      if (value === '.') continue; // ignore '.' segments
-
-      if (value === '..') {
-        // handle '..' segments
-        if (stack.length > 1) {
-          let last = stack.pop(); // remove preceding segment
-          if (last[0] === 'slash' && stack.length > 0) {
-            stack.pop(); // remove preceding slash if present
-          }
-        }
-        continue; // move to the next segment
-      }
-
-      stack.push([type, value]); // push valid path-literals
-    } else if (type === 'slash') {
-      // only add slash if the last item on the stack is not a slash
-      if (stack[stack.length - 1]?.[0] !== 'slash') {
-        stack.push([type, value]);
-      }
+    if (dotSegment(segment) === '.') {
+      if (isLast) endsWithSlash = true;
+    } else if (dotSegment(segment) === '..') {
+      output.pop();
+      if (isLast) endsWithSlash = true;
     } else {
-      stack.push([type, value]); // preserve all other types
+      output.push(segment);
     }
-  }
+  });
 
-  const normalizedPathTemplate = stack.reduce((pathTemplateNormalized, [type, value]) => {
-    if (significantTypes.includes(type)) {
-      return `${pathTemplateNormalized}${value}`;
-    }
-
-    return pathTemplateNormalized;
-  }, '');
-
-  // makes sure the root path is represented as '/'
-  return normalizedPathTemplate === '' ? '/' : normalizedPathTemplate;
+  return stringify({ segments: output, trailingSlash: endsWithSlash && output.length > 0 });
 };
 
 export default pathSegmentNormalizer;
