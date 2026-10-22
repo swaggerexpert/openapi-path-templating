@@ -22,8 +22,31 @@ describe('toRegExp', function () {
   specify('should match template expressions within path segment', function () {
     const regExp = toRegExp('/files/{name}.{ext}');
 
-    assert.deepEqual(regExp.exec('/files/report.tar.gz').slice(1), ['report.tar', 'gz']);
+    assert.deepEqual(regExp.exec('/files/report.tar.gz').slice(1), ['report', 'tar.gz']);
     assert.isFalse(regExp.test('/files/report'));
+  });
+
+  specify('should match adjacent template expressions', function () {
+    const regExp = toRegExp('/{a}{b}');
+
+    assert.deepEqual(regExp.exec('/xyz').slice(1), ['x', 'yz']);
+    assert.isFalse(regExp.test('/x'));
+  });
+
+  specify('should not backtrack catastrophically', function () {
+    const cases = [
+      ['/{a}{b}{c}{d}{e}', `/${'x'.repeat(100000)}/`],
+      ['/{a}.{b}.{c}.{d}', `/${'.'.repeat(100000)}/`],
+      ['/{a}x{b}x{c}x{d}', `/${'xa'.repeat(50000)}/`],
+      ['/{a}%2F{b}%2F{c}', `/${'%2f'.repeat(30000)}/`],
+    ];
+
+    cases.forEach(([pathTemplate, path]) => {
+      const start = Date.now();
+
+      assert.isFalse(toRegExp(pathTemplate).test(path));
+      assert.isBelow(Date.now() - start, 500, pathTemplate);
+    });
   });
 
   specify('should not match "/", "?" and "#" by template expression', function () {
@@ -98,6 +121,19 @@ describe('toRegExp', function () {
       assert.isFalse(
         toRegExp('/api/', { prefix: true, optionalTrailingSlash: true }).test('/apix'),
       );
+    });
+
+    specify('should match path prefix followed by query or fragment', function () {
+      assert.isTrue(toRegExp('/api', { prefix: true }).test('/api?offset=0'));
+      assert.isTrue(toRegExp('/api/{version}', { prefix: true }).test('/api/v1#top'));
+    });
+
+    specify('should consume optional trailing slash when present', function () {
+      const options = { prefix: true, optionalTrailingSlash: true };
+
+      assert.strictEqual(toRegExp('/pets', options).exec('/pets/toys')[0], '/pets/');
+      assert.strictEqual(toRegExp('/pets/', options).exec('/pets/toys')[0], '/pets/');
+      assert.strictEqual(toRegExp('/pets/', options).exec('/pets')[0], '/pets');
     });
   });
 

@@ -341,9 +341,20 @@ regExp.test('/pets/a/b'); // => false
 regExp.test('/pets/1/'); // => false
 ```
 
+When path segment contains multiple template expressions, the value is split at the first occurrence of the path literal
+between them, and template expression followed directly by another template expression matches a single character.
+Regular expression never backtracks catastrophically, so matching takes linear time even for untrusted input.
+
+```js
+import { toRegExp } from 'openapi-path-templating';
+
+toRegExp('/files/{name}.{ext}').exec('/files/report.tar.gz'); // => ['/files/report.tar.gz', 'report', 'tar.gz']
+toRegExp('/{a}{b}').exec('/xyz'); // => ['/xyz', 'x', 'yz']
+```
+
 Following options are supported:
 
-- `prefix` (default: `false`) - when `true`, the regular expression matches path prefix that ends at segment boundary
+- `prefix` (default: `false`) - when `true`, the regular expression matches path prefix that ends at segment boundary, query or fragment
 - `optionalTrailingSlash` (default: `false`) - when `true`, the regular expression matches optional trailing slash
 - `caseSensitive` (default: `true`) - when `false`, path literals are matched case-insensitively
 
