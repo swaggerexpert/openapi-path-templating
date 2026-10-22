@@ -438,10 +438,14 @@ Determines whether two path templates may lead to ambiguous resolution. Two path
 there is a concrete path matched by both of them and neither of them is more concrete than the other,
 so the concrete path cannot be unambiguously matched to one of them.
 
-Template expression matches one or more characters except `/`. One path template is more concrete than the other
-when every path matched by it is also matched by the other one. In that case the more concrete path template
-is matched first, and the path templates are not ambiguous. Identical path templates are not considered ambiguous,
-use [isIdentical](#equivalence) to detect them.
+Template expression matches one or more characters except `/`, and percent-encoded octet is matched as a single character.
+One path template is more concrete than the other when every path matched by it is also matched by the other one.
+Identical path templates are not considered ambiguous, use [isIdentical](#equivalence) to detect them.
+
+> NOTE: OpenAPI specification only states that concrete (non-templated) paths are matched before their templated counterparts.
+> It doesn't define which of two templated path templates is more concrete (see [OAI/OpenAPI-Specification#2564](https://github.com/OAI/OpenAPI-Specification/issues/2564)).
+> This library extends the rule: when one path template is more concrete than the other, it is assumed to be matched first,
+> and the path templates are not considered ambiguous (e.g. `/shops/{shopId}/pets/_search` and `/shops/{shopId}/pets/{petId}`).
 
 ```js
 import { isAmbiguous } from 'openapi-path-templating';

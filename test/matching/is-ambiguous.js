@@ -38,6 +38,13 @@ describe('matching', function () {
       assert.isFalse(isAmbiguous('/{a}', '/{b}{c}'));
     });
 
+    specify('should treat percent-encoded octets as single characters', function () {
+      assert.isFalse(isAmbiguous('/%2F{x}F', '/{y}%2F'));
+      assert.isFalse(isAmbiguous('/%2f{x}F', '/{y}%2F', { normalizer: identityNormalizer }));
+      assert.isTrue(isAmbiguous('/%2F{x}', '/{y}%2F'));
+      assert.isTrue(isAmbiguous('/%2f{x}', '/{y}%2F', { normalizer: identityNormalizer }));
+    });
+
     specify('should return false on invalid path templates', function () {
       assert.isFalse(isAmbiguous('/a', 'b'));
       assert.isFalse(isAmbiguous('a', '/b'));

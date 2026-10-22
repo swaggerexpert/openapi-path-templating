@@ -11,7 +11,8 @@ const TEMPLATE_EXPRESSION = Symbol('template-expression');
 const FRESH_CHAR = Symbol('fresh-char');
 
 /**
- * Converts AST into a sequence of characters and template expressions.
+ * Converts AST into a sequence of characters, percent-encoded octets and template expressions.
+ * Percent-encoded octet is a single token, so template expression never matches part of it.
  */
 const tokenize = (ast) => {
   const tokens = ['/'];
@@ -20,7 +21,8 @@ const tokenize = (ast) => {
     if (index > 0) tokens.push('/');
     segment.parts.forEach((part) => {
       if (part.type === 'PathLiteral') {
-        tokens.push(...part.value);
+        const units = part.value.match(/%[0-9A-Fa-f]{2}|./gsu);
+        tokens.push(...units.map((unit) => (unit.length === 3 ? unit.toUpperCase() : unit)));
       } else {
         tokens.push(TEMPLATE_EXPRESSION);
       }
@@ -41,7 +43,7 @@ const intersects = (tokens1, tokens2) => {
 
   while (stack.length > 0) {
     const [i, j] = stack.pop();
-    const key = `${i}:${j}`;
+    const key = i * (tokens2.length + 1) + j;
 
     if (visited.has(key)) continue;
     visited.add(key);
