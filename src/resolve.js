@@ -1,5 +1,7 @@
 import parse from './parse/index.js';
 import ListTranslator from './parse/translators/ListTranslator.js';
+import { createExpressionConverter } from './to-uri-template.js';
+import expandURITemplate from './uri-template/expand.js';
 
 const isEncoded = (pathSegment) => {
   try {
@@ -19,9 +21,30 @@ export const encodePathComponent = (pathSegment) => {
 
 const significantTypes = ['slash', 'path-literal', 'template-expression-param-name'];
 
+/**
+ * Serializes parameter value using its Parameter Object, as defined by RFC 6570.
+ * https://spec.openapis.org/oas/v3.2.0.html#appendix-c-using-rfc6570-based-serialization
+ */
+const createSerializer = (parameterObjects) => {
+  const toURITemplateExpression = createExpressionConverter(parameterObjects);
+
+  return (parameterValue, parameterName) => {
+    const { variableName, expression } = toURITemplateExpression(parameterName);
+    return expandURITemplate(expression, { [variableName]: parameterValue });
+  };
+};
+
 const resolve = (pathTemplate, parameters, options = {}) => {
-  const defaultOptions = { encoder: encodePathComponent };
-  const mergedOptions = { ...defaultOptions, ...options };
+  const { parameterObjects } = options;
+
+  if (parameterObjects !== undefined && options.encoder !== undefined) {
+    throw new TypeError('Options encoder and parameterObjects cannot be used together');
+  }
+
+  const encoder =
+    parameterObjects !== undefined
+      ? createSerializer(parameterObjects)
+      : (options.encoder ?? encodePathComponent);
   const parseResult = parse(pathTemplate, { translator: new ListTranslator() });
 
   if (!parseResult.result.success) return pathTemplate;
@@ -33,7 +56,7 @@ const resolve = (pathTemplate, parameters, options = {}) => {
     .map(([type, value]) => {
       if (type === 'template-expression-param-name') {
         return Object.prototype.hasOwnProperty.call(parameters, value)
-          ? mergedOptions.encoder(parameters[value], value)
+          ? encoder(parameters[value], value)
           : `{${value}}`;
       }
 

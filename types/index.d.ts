@@ -162,7 +162,11 @@ interface Parameters {
 }
 
 interface ResolveOptions {
-  encoder: (pathSegment: string, parameterName?: string) => string;
+  readonly encoder?: (pathSegment: string, parameterName?: string) => string;
+  /**
+   * Serializes values using Parameter Objects as defined by RFC 6570; can't be combined with encoder.
+   */
+  readonly parameterObjects?: readonly ParameterObject[];
 }
 
 /**
@@ -170,7 +174,7 @@ interface ResolveOptions {
  */
 export type URITemplate = string;
 
-export function toURITemplate(pathTemplate: PathTemplate, parameters?: readonly ParameterObject[]): ToURITemplateResult;
+export function toURITemplate(pathTemplate: PathTemplate, parameterObjects?: readonly ParameterObject[]): URITemplate;
 
 export interface ParameterObject {
   readonly name: string;
@@ -178,14 +182,6 @@ export interface ParameterObject {
   readonly style?: string;
   readonly explode?: boolean;
   readonly allowReserved?: boolean;
-}
-
-export interface ToURITemplateResult {
-  readonly uriTemplate: URITemplate;
-  /**
-   * Template expression names mapped to URI Template variable names.
-   */
-  readonly variables: Record<string, string>;
 }
 
 export function parseURITemplate(uriTemplate: URITemplate): URITemplateParseResult;

@@ -35,20 +35,12 @@ const toExpression = (
 };
 
 /**
- * Converts path template into URI Template using path Parameter Objects.
+ * Path Parameter Objects by name; parameters are path parameters, unless their location says otherwise.
  */
-const toURITemplate = (pathTemplate, parameters = []) => {
-  const parseResult = parse(pathTemplate);
-
-  if (!parseResult.result.success) {
-    throw new OpenAPIPathTemplatingParseError(`Invalid path template: "${pathTemplate}"`, {
-      pathTemplate,
-    });
-  }
-
+const toPathParameters = (parameterObjects) => {
   const pathParameters = new Map();
-  parameters
-    // parameters are path parameters, unless their location says otherwise
+
+  parameterObjects
     .filter(
       (parameter) =>
         typeof parameter?.name === 'string' &&
@@ -58,25 +50,45 @@ const toURITemplate = (pathTemplate, parameters = []) => {
       if (!pathParameters.has(parameter.name)) pathParameters.set(parameter.name, parameter);
     });
 
-  const variables = {};
+  return pathParameters;
+};
+
+/**
+ * Creates function converting template expression names into URI Template expressions.
+ */
+export const createExpressionConverter = (parameterObjects = []) => {
+  const pathParameters = toPathParameters(parameterObjects);
+
+  return (name) => {
+    const variableName = toVariableName(name);
+    return { variableName, expression: toExpression(variableName, pathParameters.get(name) ?? {}) };
+  };
+};
+
+/**
+ * Converts path template into URI Template using path Parameter Objects.
+ */
+const toURITemplate = (pathTemplate, parameterObjects = []) => {
+  const parseResult = parse(pathTemplate);
+
+  if (!parseResult.result.success) {
+    throw new OpenAPIPathTemplatingParseError(`Invalid path template: "${pathTemplate}"`, {
+      pathTemplate,
+    });
+  }
+
+  const toURITemplateExpression = createExpressionConverter(parameterObjects);
   const { segments, trailingSlash } = parseResult.tree;
   const uriTemplateSegments = segments.map(({ parts }) =>
     parts
-      .map((part) => {
-        // path literals consist of characters allowed in URI Template literals
-        if (part.type === 'PathLiteral') return part.value;
-
-        const variableName = toVariableName(part.name);
-        variables[part.name] = variableName;
-        return toExpression(variableName, pathParameters.get(part.name) ?? {});
-      })
+      // path literals consist of characters allowed in URI Template literals
+      .map((part) =>
+        part.type === 'PathLiteral' ? part.value : toURITemplateExpression(part.name).expression,
+      )
       .join(''),
   );
 
-  return {
-    uriTemplate: `/${uriTemplateSegments.join('/')}${trailingSlash && segments.length > 0 ? '/' : ''}`,
-    variables,
-  };
+  return `/${uriTemplateSegments.join('/')}${trailingSlash && segments.length > 0 ? '/' : ''}`;
 };
 
 export default toURITemplate;

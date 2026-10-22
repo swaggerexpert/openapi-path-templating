@@ -1,86 +1,62 @@
 import { assert } from 'chai';
 
-import { toURITemplate, expandURITemplate, OpenAPIPathTemplatingParseError } from '../src/index.js';
-
-const expand = (pathTemplate, parameters, values) => {
-  const { uriTemplate, variables } = toURITemplate(pathTemplate, parameters);
-  const data = Object.fromEntries(
-    Object.entries(values).map(([name, value]) => [variables[name], value]),
-  );
-  return expandURITemplate(uriTemplate, data);
-};
+import { toURITemplate, resolve, OpenAPIPathTemplatingParseError } from '../src/index.js';
 
 describe('toURITemplate', function () {
   specify('should convert path template into URI Template', function () {
-    assert.deepEqual(toURITemplate('/pets/{petId}'), {
-      uriTemplate: '/pets/{petId}',
-      variables: { petId: 'petId' },
-    });
+    assert.strictEqual(toURITemplate('/pets/{petId}'), '/pets/{petId}');
+    assert.strictEqual(toURITemplate('/pets/{petId}', []), '/pets/{petId}');
   });
 
   specify('should use path parameter serialization', function () {
-    const parameter = (fields) => [{ name: 'petId', in: 'path', ...fields }];
+    const toTemplate = (fields) => toURITemplate('/pets/{petId}', [{ name: 'petId', ...fields }]);
 
-    assert.strictEqual(toURITemplate('/pets/{petId}', parameter({})).uriTemplate, '/pets/{petId}');
-    assert.strictEqual(
-      toURITemplate('/pets/{petId}', parameter({ style: 'label' })).uriTemplate,
-      '/pets/{.petId}',
-    );
-    assert.strictEqual(
-      toURITemplate('/pets/{petId}', parameter({ style: 'matrix', explode: true })).uriTemplate,
-      '/pets/{;petId*}',
-    );
-    assert.strictEqual(
-      toURITemplate('/pets/{petId}', parameter({ allowReserved: true })).uriTemplate,
-      '/pets/{+petId}',
-    );
-    assert.strictEqual(
-      toURITemplate('/pets/{petId}', parameter({ style: 'matrix', allowReserved: true }))
-        .uriTemplate,
-      '/pets/{;petId}',
-    );
+    assert.strictEqual(toTemplate({}), '/pets/{petId}');
+    assert.strictEqual(toTemplate({ style: 'label' }), '/pets/{.petId}');
+    assert.strictEqual(toTemplate({ style: 'matrix', explode: true }), '/pets/{;petId*}');
+    assert.strictEqual(toTemplate({ allowReserved: true }), '/pets/{+petId}');
+    assert.strictEqual(toTemplate({ style: 'matrix', allowReserved: true }), '/pets/{;petId}');
   });
 
   specify('should ignore parameters not in path', function () {
-    const parameters = [{ name: 'petId', in: 'query', style: 'form', explode: true }, null];
+    const parameterObjects = [{ name: 'petId', in: 'query', style: 'form', explode: true }, null];
 
-    assert.strictEqual(toURITemplate('/pets/{petId}', parameters).uriTemplate, '/pets/{petId}');
+    assert.strictEqual(toURITemplate('/pets/{petId}', parameterObjects), '/pets/{petId}');
   });
 
   specify('should consider parameters without location as path parameters', function () {
     assert.strictEqual(
-      toURITemplate('/pets/{petId}', [{ name: 'petId', style: 'label' }]).uriTemplate,
+      toURITemplate('/pets/{petId}', [{ name: 'petId', style: 'label' }]),
       '/pets/{.petId}',
     );
   });
 
   specify('should pick path parameter among parameters with the same name', function () {
-    const parameters = [
+    const parameterObjects = [
       { name: 'id', in: 'query', style: 'form', explode: true },
       { name: 'id', in: 'path', style: 'label' },
     ];
 
-    assert.strictEqual(toURITemplate('/pets/{id}', parameters).uriTemplate, '/pets/{.id}');
+    assert.strictEqual(toURITemplate('/pets/{id}', parameterObjects), '/pets/{.id}');
   });
 
   specify('should percent-encode illegal variable names', function () {
-    assert.deepEqual(toURITemplate('/{pet-id}/{❤️}/{a.b}'), {
-      uriTemplate: '/{pet%2Did}/{%E2%9D%A4%EF%B8%8F}/{a%2Eb}',
-      variables: { 'pet-id': 'pet%2Did', '❤️': '%E2%9D%A4%EF%B8%8F', 'a.b': 'a%2Eb' },
-    });
-    assert.strictEqual(expand('/pets/{pet-id}', [], { 'pet-id': 7 }), '/pets/7');
+    assert.strictEqual(
+      toURITemplate('/{pet-id}/{❤️}/{a.b}'),
+      '/{pet%2Did}/{%E2%9D%A4%EF%B8%8F}/{a%2Eb}',
+    );
   });
 
   specify('should keep path literals', function () {
     assert.strictEqual(
-      expand("/applications(appId='{appId}')/%7Bx%7D/", [], { appId: 'a b' }),
-      "/applications(appId='a%20b')/%7Bx%7D/",
+      toURITemplate("/applications(appId='{appId}')/%7Bx%7D/"),
+      "/applications(appId='{appId}')/%7Bx%7D/",
     );
   });
 
   specify('should throw on unsupported style', function () {
     assert.throws(
-      () => toURITemplate('/pets/{petId}', [{ name: 'petId', in: 'path', style: 'form' }]),
+      () => toURITemplate('/pets/{petId}', [{ name: 'petId', style: 'form' }]),
       TypeError,
     );
   });
@@ -93,12 +69,7 @@ describe('toURITemplate', function () {
    * https://spec.openapis.org/oas/v3.2.0.html#style-examples
    */
   context('style examples', function () {
-    const values = {
-      empty: '',
-      string: 'blue',
-      array: ['blue', 'black', 'brown'],
-      object: { R: 100, G: 200, B: 150 },
-    };
+    const values = ['', 'blue', ['blue', 'black', 'brown'], { R: 100, G: 200, B: 150 }];
     const examples = [
       [
         'matrix',
@@ -118,11 +89,11 @@ describe('toURITemplate', function () {
 
     examples.forEach(([style, explode, expected]) => {
       specify(`style: ${style}, explode: ${explode}`, function () {
-        const parameters = [{ name: 'color', in: 'path', style, explode }];
+        const parameterObjects = [{ name: 'color', in: 'path', style, explode }];
 
-        Object.values(values).forEach((value, index) => {
+        values.forEach((value, index) => {
           assert.strictEqual(
-            expand('/{color}', parameters, { color: value }),
+            resolve('/{color}', { color: value }, { parameterObjects }),
             `/${expected[index]}`,
           );
         });
