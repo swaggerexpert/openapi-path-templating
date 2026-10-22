@@ -12,7 +12,6 @@ describe('test', function () {
     assert.isTrue(test('/{test}a'));
     assert.isTrue(test('/foo/bar/{baz}/test/{foo_id}/baz/{bar_id}'));
     assert.isTrue(test('/range({x},{y})')); // parentheses are allowed
-    assert.isTrue(test('/range({x},{y})/secondRange({x},{y})')); // repeated parameter names are allowed
     assert.isTrue(test('/{entity}/{another-entity}/me'));
     // some special characters in literals are allowed
     assert.isTrue(test('/'));
@@ -67,6 +66,14 @@ describe('test', function () {
     assert.isFalse(test(undefined));
   });
 
+  it('should not detect path template with repeated template expression names', function () {
+    assert.isFalse(test('/range({x},{y})/secondRange({x},{y})'));
+    assert.isFalse(test('/pets/{id}/owners/{id}'));
+    assert.isFalse(test('/{id}{id}'));
+    assert.isFalse(test('/pets/{id}/owners/{id}', { strict: true }));
+    assert.isTrue(test('/range({x1},{y1})/secondRange({x2},{y2})'));
+  });
+
   context('given strict option', function () {
     specify('should detect as path template', function () {
       assert.isTrue(test('/{path}/', { strict: true })); // trailing slash is allowed
@@ -77,7 +84,6 @@ describe('test', function () {
       assert.isTrue(test('/{test}a', { strict: true }));
       assert.isTrue(test('/foo/bar/{baz}/test/{foo_id}/baz/{bar_id}', { strict: true }));
       assert.isTrue(test('/range({x},{y})', { strict: true })); // parentheses are allowed
-      assert.isTrue(test('/range({x},{y})/secondRange({x},{y})', { strict: true })); // repeated parameter names are allowed
       assert.isTrue(test('/{entity}/{another-entity}/me', { strict: true }));
       // some special characters in literals are allowed
       assert.isTrue(test("/applications(appId='{appId}')", { strict: true }));

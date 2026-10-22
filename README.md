@@ -288,7 +288,10 @@ test('/pets/{petId}'); // => true
 test('/a{petId}'); // => true
 test('/pets'); // => true
 test('/pets', { strict: true }); // => false (doesn't contain any template-expression)
+test('/pets/{id}/owners/{id}'); // => false (repeated template expression name)
 ```
+
+Each template expression must not appear more than once in a single path template.
 
 #### Resolution
 

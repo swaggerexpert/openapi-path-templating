@@ -1,5 +1,5 @@
 import parse from './parse/index.js';
-import ListTranslator from './parse/translators/ListTranslator.js';
+import templateExpressionNames, { hasRepeatedNames } from './template-expression-names.js';
 
 /**
  * Test if a string is a path template.
@@ -11,12 +11,16 @@ import ListTranslator from './parse/translators/ListTranslator.js';
  */
 const test = (pathTemplate, { strict = false } = {}) => {
   try {
-    const parseResult = parse(pathTemplate, { translator: strict ? new ListTranslator() : null });
+    const parseResult = parse(pathTemplate);
 
     if (!parseResult.result.success) return false;
-    if (!strict) return true;
 
-    return parseResult.tree.some(([type]) => type === 'template-expression');
+    const names = templateExpressionNames(parseResult.tree);
+
+    // each template expression must not appear more than once in a path template
+    if (hasRepeatedNames(names)) return false;
+
+    return !strict || names.length > 0;
   } catch {
     return false;
   }

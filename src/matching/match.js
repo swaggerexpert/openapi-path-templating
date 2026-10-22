@@ -2,6 +2,7 @@ import parse from '../parse/index.js';
 import { astToRegExp } from '../to-regexp.js';
 import identityNormalizer from '../normalization/identity.js';
 import OpenAPIPathTemplatingParseError from '../errors/OpenAPIPathTemplatingParseError.js';
+import templateExpressionNames, { hasRepeatedNames } from '../template-expression-names.js';
 
 const decodeIdentity = (value) => value;
 
@@ -36,12 +37,9 @@ const compile = (pathTemplate, options) => {
   }
 
   const ast = parseResult.tree;
-  const names = ast.segments
-    .flatMap(({ parts }) => parts)
-    .filter(({ type }) => type === 'TemplateExpression')
-    .map(({ name }) => name);
+  const names = templateExpressionNames(ast);
 
-  if (new Set(names).size !== names.length) {
+  if (hasRepeatedNames(names)) {
     throw new OpenAPIPathTemplatingParseError(
       `Repeated template expression name in path template: "${pathTemplate}"`,
       { pathTemplate },
