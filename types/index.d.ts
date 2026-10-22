@@ -155,14 +155,14 @@ interface TestOptions {
  * Resolving
  */
 export function resolve(pathTemplate: PathTemplate, parameters: Parameters, options?: ResolveOptions): ResolvedPath;
-export function encodePathComponent(parameterValue: string): string;
+export function encodePathComponent(pathSegment: string): string;
 
 interface Parameters {
   [key: string]: any;
 }
 
 interface ResolveOptions {
-  encoder: (paramterValue: string, parameterName?: string) => string;
+  encoder: (pathSegment: string, parameterName?: string) => string;
 }
 
 /**

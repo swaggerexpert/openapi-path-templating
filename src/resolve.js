@@ -1,22 +1,20 @@
 import parse from './parse/index.js';
 import ListTranslator from './parse/translators/ListTranslator.js';
 
-const isEncoded = (parameterValue) => {
+const isEncoded = (pathSegment) => {
   try {
-    return (
-      typeof parameterValue === 'string' && decodeURIComponent(parameterValue) !== parameterValue
-    );
+    return typeof pathSegment === 'string' && decodeURIComponent(pathSegment) !== pathSegment;
   } catch {
     return false;
   }
 };
 
-export const encodePathComponent = (parameterValue) => {
-  if (isEncoded(parameterValue)) {
-    return parameterValue;
+export const encodePathComponent = (pathSegment) => {
+  if (isEncoded(pathSegment)) {
+    return pathSegment;
   }
 
-  return encodeURIComponent(parameterValue).replace(/%5B/g, '[').replace(/%5D/g, ']');
+  return encodeURIComponent(pathSegment).replace(/%5B/g, '[').replace(/%5D/g, ']');
 };
 
 const significantTypes = ['slash', 'path-literal', 'template-expression-param-name'];

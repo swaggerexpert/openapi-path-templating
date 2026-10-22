@@ -310,7 +310,7 @@ It is possible to provide a custom encoder.
 import { resolve } from 'openapi-path-templating';
 
 resolve('/pets/{petId}', { petId: '/?#' }, {
-  encoder: (component) => component, // no encoding
+  encoder: (pathSegment) => pathSegment, // no encoding
 }); // => "/pets//?#"
 ```
 
