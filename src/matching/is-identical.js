@@ -2,15 +2,15 @@ import parse from '../parse/index.js';
 import normalize from '../normalization/index.js';
 
 /**
- * Serializes AST with template expressions replaced by the same constant.
+ * Reconstructs path template from AST with template expressions replaced by `{}`.
+ * Path literals never contain `{`, `}` or `/`, so different shapes never produce the same string.
  */
-const toShape = (ast) =>
-  JSON.stringify([
-    ast.trailingSlash,
-    ast.segments.map((segment) =>
-      segment.parts.map((part) => (part.type === 'TemplateExpression' ? null : part.value)),
-    ),
-  ]);
+const toShape = (ast) => {
+  const segments = ast.segments.map((segment) =>
+    segment.parts.map((part) => (part.type === 'TemplateExpression' ? '{}' : part.value)).join(''),
+  );
+  return `/${segments.join('/')}${ast.trailingSlash ? '/' : ''}`;
+};
 
 const isIdentical = (pathTemplate1, pathTemplate2, { normalizer = normalize } = {}) => {
   if (typeof pathTemplate1 !== 'string') return false;
