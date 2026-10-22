@@ -40,19 +40,13 @@ const segmentToRegExp = ({ parts }, groupCounter) =>
     })
     .join('');
 
-const toRegExp = (
-  pathTemplate,
+/**
+ * Converts AST of valid path template into a regular expression.
+ */
+export const astToRegExp = (
+  { segments, trailingSlash },
   { prefix = false, optionalTrailingSlash = false, caseSensitive = true } = {},
 ) => {
-  const parseResult = parse(pathTemplate);
-
-  if (!parseResult.result.success) {
-    throw new OpenAPIPathTemplatingParseError(`Invalid path template: "${pathTemplate}"`, {
-      pathTemplate,
-    });
-  }
-
-  const { segments, trailingSlash } = parseResult.tree;
   const isRoot = segments.length === 0;
   const groupCounter = { value: 0 }; // backreferences need capturing group numbers
   let source = `^\\/${segments.map((segment) => segmentToRegExp(segment, groupCounter)).join('\\/')}`;
@@ -70,6 +64,18 @@ const toRegExp = (
   if (!prefix) source += '$';
 
   return new RegExp(source, caseSensitive ? '' : 'i');
+};
+
+const toRegExp = (pathTemplate, options = {}) => {
+  const parseResult = parse(pathTemplate);
+
+  if (!parseResult.result.success) {
+    throw new OpenAPIPathTemplatingParseError(`Invalid path template: "${pathTemplate}"`, {
+      pathTemplate,
+    });
+  }
+
+  return astToRegExp(parseResult.tree, options);
 };
 
 export default toRegExp;

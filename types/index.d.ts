@@ -195,6 +195,24 @@ export interface AmbiguityOptions {
 }
 
 /**
+ * Matching
+ */
+export function match(pathTemplates: PathTemplate | readonly PathTemplate[], options?: MatchOptions): MatchFunction;
+
+export interface MatchOptions extends ToRegExpOptions {
+  readonly precedence?: 'concrete' | 'order';
+  readonly decode?: ((value: string) => string) | false;
+  readonly normalizer?: Normalizer;
+}
+
+export type MatchFunction = (path: string) => MatchResult | null;
+
+export interface MatchResult {
+  readonly pathTemplate: PathTemplate;
+  readonly parameters: Record<string, string>;
+}
+
+/**
  * Normalization
  */
 export function normalize(pathTemplate: PathTemplate): PathTemplate;
