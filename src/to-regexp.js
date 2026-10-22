@@ -7,69 +7,47 @@ import OpenAPIPathTemplatingParseError from './errors/OpenAPIPathTemplatingParse
  */
 const TEMPLATE_EXPRESSION = '((?:%[0-9A-Fa-f]{2}|[^/?#%])+)';
 
-const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
-
 /**
- * Hexadecimal digits of percent-encoded octet are case-insensitive.
+ * Escapes path literal; hexadecimal digits of percent-encoded octets are case-insensitive.
  */
-const hexDigitToRegExp = (digit) =>
-  /[A-Fa-f]/.test(digit) ? `[${digit.toUpperCase()}${digit.toLowerCase()}]` : digit;
-
-const literalToRegExp = (value) =>
-  value
-    .match(/%[0-9A-Fa-f]{2}|[\s\S]/gu)
-    .map((char) =>
-      char.length === 3
-        ? `%${hexDigitToRegExp(char[1])}${hexDigitToRegExp(char[2])}`
-        : escapeRegExp(char),
-    )
-    .join('');
+const literalToRegExp = (literal) =>
+  literal
+    .replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')
+    .replace(/%[0-9A-Fa-f]{2}/g, (octet) =>
+      octet.replace(/[A-Fa-f]/g, (digit) => `[${digit.toUpperCase()}${digit.toLowerCase()}]`),
+    );
 
 const toRegExp = (
   pathTemplate,
   { prefix = false, optionalTrailingSlash = false, caseSensitive = true } = {},
 ) => {
-  const parseResult = parse(pathTemplate);
-
-  if (!parseResult.result.success) {
+  if (!parse(pathTemplate, { translator: null }).result.success) {
     throw new OpenAPIPathTemplatingParseError(`Invalid path template: "${pathTemplate}"`, {
       pathTemplate,
     });
   }
 
-  const { segments, trailingSlash } = parseResult.tree;
   const parameters = [];
-  const source = segments
-    .map((segment) =>
-      segment.parts
-        .map((part) => {
-          if (part.type === 'PathLiteral') return literalToRegExp(part.value);
-          parameters.push(part.name);
-          return TEMPLATE_EXPRESSION;
-        })
-        .join(''),
-    )
-    .join('\\/');
+  const hasOptionalTrailingSlash = optionalTrailingSlash && pathTemplate !== '/';
+  const path = hasOptionalTrailingSlash ? pathTemplate.replace(/\/$/, '') : pathTemplate;
+  // valid path template consists of template expressions and path literals only
+  let source = path.replace(/\{([^}]+)\}|[^{]+/g, (match, name) => {
+    if (name === undefined) return literalToRegExp(match);
+    parameters.push(name);
+    return TEMPLATE_EXPRESSION;
+  });
 
-  const isRoot = segments.length === 0;
-  const endsWithSlash = isRoot || (trailingSlash && !optionalTrailingSlash);
-  let pattern = `^\\/${source}`;
-
-  if (!isRoot && optionalTrailingSlash) {
-    pattern += '\\/?';
-  } else if (!isRoot && trailingSlash) {
-    pattern += '\\/';
-  }
+  if (hasOptionalTrailingSlash) source += '\\/?';
 
   if (!prefix) {
-    pattern += '$';
-  } else if (!endsWithSlash) {
+    source += '$';
+  } else if (!source.endsWith('\\/')) {
     // prefix match must end at segment boundary
-    pattern += '(?=\\/|$)';
+    source += '(?=\\/|$)';
   }
 
   return {
-    regExp: new RegExp(pattern, caseSensitive ? '' : 'i'),
+    regExp: new RegExp(`^${source}`, caseSensitive ? '' : 'i'),
     parameters,
   };
 };
