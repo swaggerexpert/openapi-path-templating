@@ -70,7 +70,7 @@
   "devDependencies": {
     "@babel/cli": "=7.28.6",
     "@babel/core": "=7.29.0",
-    "@babel/preset-env": "=7.29.0",
+    "@babel/preset-env": "=8.0.7",
     "@commitlint/cli": "=20.5.0",
     "@commitlint/config-conventional": "=20.5.0",
     "apg-js": "^4.4.0",
