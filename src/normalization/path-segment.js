@@ -11,10 +11,8 @@ const pathSegmentNormalizer = (pathTemplate) => {
 
   if (!parseResult.result.success) return pathTemplate;
 
-  const parts = [];
+  const parts = parseResult.tree;
   const stack = [];
-
-  parseResult.ast.translate(parts);
 
   for (let i = 0; i < parts.length; i += 1) {
     let [type, value] = parts[i];

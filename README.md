@@ -12,7 +12,7 @@ Each template expression in the path MUST correspond to a path parameter that is
 An exception is if the path item is empty, for example due to ACL constraints, matching path parameters are not required.
 
 `openapi-path-templating` is a **parser**, **validator**, **resolver** and **matcher** for OpenAPI Path Templating,
-which played a [foundational role](https://github.com/OAI/OpenAPI-Specification/pull/4244) in defining the official ANBF grammar for OpenAPI Path Templating.
+which played a [foundational role](https://github.com/OAI/OpenAPI-Specification/pull/4244) in defining the official ABNF grammar for OpenAPI Path Templating.
 
 It supports Path Templating defined in following OpenAPI specification versions:
 
@@ -46,10 +46,14 @@ It supports Path Templating defined in following OpenAPI specification versions:
   - [Installation](#installation)
   - [Usage](#usage)
     - [Parsing](#parsing)
+      - [Translators](#translators)
+      - [Statistics](#statistics)
+      - [Tracing](#tracing)
     - [Validation](#validation)
     - [Resolution](#resolution)
     - [Normalization](#normalization)
     - [Matching](#matching)
+    - [Errors](#errors)
     - [Grammar](#grammar)
 - [More about OpenAPI Path Templating](#more-about-openapi-path-templating)
 - [License](#license)
@@ -73,63 +77,52 @@ and use [apg-lite](https://github.com/ldthomas/apg-lite) parser generator.
 
 #### Parsing
 
-Parsing a Path Templating is as simple as importing the **parse** function
-and calling it.
+Parsing a Path Templating is as simple as importing the **parse** function and calling it.
 
 ```js
 import { parse } from 'openapi-path-templating';
 
 const parseResult = parse('/pets/{petId}');
-parseResult.result.success; // => true
 ```
 
 **parseResult** variable has the following shape:
 
 ```
 {
-  result: {
-    success: true,
-    state: 101,
-    stateName: 'MATCH',
-    length: 13,
-    matched: 13,
-    maxMatched: 13,
-    maxTreeDepth: 20,
-    nodeHits: 232
-  },
-  ast: fnast {
-    callbacks: [
-      'path-template': [Function: pathTemplate],
-      slash: [Function: slash],
-      'path-literal': [Function: pathLiteral],
-      'template-expression': [Function: templateExpression],
-      'template-expression-param-name': [Function: templateExpressionParamName]
-    ],
-    init: [Function (anonymous)],
-    ruleDefined: [Function (anonymous)],
-    udtDefined: [Function (anonymous)],
-    down: [Function (anonymous)],
-    up: [Function (anonymous)],
-    translate: [Function (anonymous)],
-    setLength: [Function (anonymous)],
-    getLength: [Function (anonymous)],
-    toXml: [Function (anonymous)]
-  }
+  result: <ParseResult['result']>,
+  tree: <ParseResult['tree']>,
+  stats: <ParseResult['stats']>,
+  trace: <ParseResult['trace']>,
 }
 ```
 
-###### Interpreting AST as list of entries
+[TypeScript typings](https://github.com/swaggerexpert/openapi-path-templating/blob/main/types/index.d.ts) are available for all fields attached to parse result object returned by the `parse` function.
+
+##### Translators
+
+`openapi-path-templating` provides several translators to convert the parse result into different tree representations.
+
+###### List translator
+
+**Default translator**. List of entries representation is available on parse result
+by default or when instance of `ListTranslator` is provided via a `translator` option to the `parse` function.
+Every entry is a `[type, text]` tuple, ordered as matched by the parser.
 
 ```js
 import { parse } from 'openapi-path-templating';
 
-const parseResult = parse('/pets/{petId}');
-const parts = [];
-
-parseResult.ast.translate(parts);
+const { tree: list } = parse('/pets/{petId}');
 ```
 
-After running the above code, **parts** variable has the following shape:
+or
+
+```js
+import { parse, ListTranslator } from 'openapi-path-templating';
+
+const { tree: list } = parse('/pets/{petId}', { translator: new ListTranslator() });
+```
+
+After running the above code, **list** variable has the following shape:
 
 ```js
 [
@@ -142,44 +135,107 @@ After running the above code, **parts** variable has the following shape:
 ]
 ```
 
-###### Interpreting AST as XML
+> NOTE: for backward compatibility, parse result also exposes the deprecated `ast` field.
+> `parseResult.ast.translate(parts)` populates `parts` with the same list of entries as `parseResult.tree`.
+> Prefer `tree` in new code.
+
+###### CST translator
+
+[Concrete Syntax Tree](https://en.wikipedia.org/wiki/Parse_tree) (Parse tree) representation is available on parse result
+when instance of `CSTTranslator` is provided via a `translator` option to the `parse` function.
+CST is suitable to be consumed by other tools like IDEs, editors, etc...
+
+```js
+import { parse, CSTTranslator } from 'openapi-path-templating';
+
+const { tree: cst } = parse('/pets/{petId}', { translator: new CSTTranslator() });
+```
+
+CST tree has a shape documented by [TypeScript typings (CSTNode)](https://github.com/swaggerexpert/openapi-path-templating/blob/main/types/index.d.ts).
+
+###### AST translator
+
+[Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) representation is available on parse result
+when instance of `ASTTranslator` is provided via a `translator` option to the `parse` function.
+AST is suitable to be consumed by implementations that need to analyze the structure of the path template.
+
+```js
+import { parse, ASTTranslator } from 'openapi-path-templating';
+
+const { tree: ast } = parse('/pets/a{petId}/', { translator: new ASTTranslator() });
+```
+
+After running the above code, **ast** variable has the following shape:
+
+```js
+{
+  type: 'PathTemplate',
+  segments: [
+    {
+      type: 'PathSegment',
+      parts: [{ type: 'PathLiteral', value: 'pets' }],
+    },
+    {
+      type: 'PathSegment',
+      parts: [
+        { type: 'PathLiteral', value: 'a' },
+        { type: 'TemplateExpression', name: 'petId' },
+      ],
+    },
+  ],
+  trailingSlash: true,
+}
+```
+
+AST tree has a shape documented by [TypeScript typings (ASTNode)](https://github.com/swaggerexpert/openapi-path-templating/blob/main/types/index.d.ts).
+
+###### XML translator
+
+```js
+import { parse, XMLTranslator } from 'openapi-path-templating';
+
+const { tree: xml } = parse('/pets/{petId}', { translator: new XMLTranslator() });
+```
+
+##### Statistics
+
+`parse` function returns additional statistical information about the parsing process.
+Collection of the statistics can be enabled by setting `stats` option to `true`.
 
 ```js
 import { parse } from 'openapi-path-templating';
 
-const parseResult = parse('/pets/{petId}');
-const xml = parseResult.ast.toXml();
+const { stats } = parse('/pets/{petId}', { stats: true });
+
+stats.displayStats(); // returns operator statistics as string
+stats.displayHits(); // returns rules grouped by hit count as string
 ```
 
-After running the above code, **xml** variable has the following content:
+##### Tracing
 
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<root nodes="6" characters="13">
-  <!-- input string -->
-  /pets/{petId}
-  <node name="path-template" index="0" length="13">
-    /pets/{petId}
-    <node name="slash" index="0" length="1">
-      /
-    </node><!-- name="slash" -->
-    <node name="path-literal" index="1" length="4">
-      pets
-    </node><!-- name="path-literal" -->
-    <node name="slash" index="5" length="1">
-      /
-    </node><!-- name="slash" -->
-    <node name="template-expression" index="6" length="7">
-      {petId}
-      <node name="template-expression-param-name" index="7" length="5">
-        petId
-      </node><!-- name="template-expression-param-name" -->
-    </node><!-- name="template-expression" -->
-  </node><!-- name="path-template" -->
-</root>
+`parse` function returns additional tracing information about the parsing process.
+Tracing can be enabled by setting `trace` option to `true`. Tracing is essential
+for debugging failed parses or analyzing rule execution flow.
+
+```js
+import { parse } from 'openapi-path-templating';
+
+const { result, trace } = parse('pets', { trace: true });
+
+result.success; // false
+trace.displayTrace(); // returns trace information as string
 ```
 
-> NOTE: AST can also be traversed in classical way using [depth first traversal](https://www.tutorialspoint.com/data_structures_algorithms/depth_first_traversal.htm). For more information about this option please refer to [apg-js](https://github.com/ldthomas/apg-js) and [apg-js-examples](https://github.com/ldthomas/apg-js-examples).
+Tracing also allows you to infer expected tokens at a failure point. This is useful for generating meaningful syntax error messages.
+
+```js
+import { parse } from 'openapi-path-templating';
+
+const { trace } = parse('pets', { trace: true });
+
+const expectations = trace.inferExpectations();
+expectations.toString(); // => '"/"'
+```
 
 #### Validation
 
@@ -231,7 +287,7 @@ a fixed set of normalizers in following order:
 - [Path segment normalization](#path-segment-normalization)
 
 ```js
-import { normalize } from '@swaggerexpert/openapi-path-templating';
+import { normalize } from 'openapi-path-templating';
 
 normalize('/api/{userId}/profile/../account/%41ccount'); // => '/api/{userId}/account/Account'
 ```
@@ -245,7 +301,7 @@ Noop normalizer that acts as identity function. Performs no transformations on t
 and returns it as is.
 
 ```js
-import { identityNormalizer } from '@swaggerexpert/openapi-path-templating';
+import { identityNormalizer } from 'openapi-path-templating';
 
 identityNormalizer('/API/%2faPi/%7bsection%7d/./../profile'); // => '/API/%2faPi/%7bsection%7d/./../profile'
 ```
@@ -257,7 +313,7 @@ triplet (e.g., `"%3a"` versus `"%3A"`) are case-insensitive and therefore
 should be normalized to use uppercase letters for the digits A-F.
 
 ```js
-import { caseNormalizer } from '@swaggerexpert/openapi-path-templating';
+import { caseNormalizer } from 'openapi-path-templating';
 
 caseNormalizer('/api/{userId}/profile/%7bsection%7d'); // => '/api/{userId}/profile/%7Bsection%7D'
 ```
@@ -273,9 +329,9 @@ be normalized by decoding any percent-encoded octet that corresponds
 to an unreserved character.
 
 ```js
-import { percentEndingNormalizer } from '@swaggerexpert/openapi-path-templating';
+import { percentEncodingNormalizer } from 'openapi-path-templating';
 
-percentEndingNormalizer('/api/%7BuserId%7D/profile/%41ccount/{account}'); // => '/api/%7BuserId%7D/profile/Account/{account}'
+percentEncodingNormalizer('/api/%7BuserId%7D/profile/%41ccount/{account}'); // => '/api/%7BuserId%7D/profile/Account/{account}'
 ```
 
 ###### Path segment normalization
@@ -286,7 +342,7 @@ the reference resolution process. Path template segment normalizer removes
 dot-segments by applying the [remove_dot_segments](https://datatracker.ietf.org/doc/html/rfc3986#section-5.2.4) algorithm to the path template.
 
 ```js
-import { pathSegmentNormalizer } from '@swaggerexpert/openapi-path-templating';
+import { pathSegmentNormalizer } from 'openapi-path-templating';
 
 pathSegmentNormalizer('/api/{userId}/./profile/../account'); // => '/api/{userId}/account'
 ```
@@ -334,6 +390,31 @@ isIdentical('/api/{userId}/account/Account', '/api/{userId}/profile/../account/%
 // no normalization
 isIdentical('/API/%2faPi/%7bsection%7d/./../profile', '/API/%2FaPi/profile', { normalizer: identityNormalizer }); // => false
 isIdentical('/api/{userId}/account/Account', '/api/{userId}/profile/../account/%41ccount', { normalizer: identityNormalizer }); // => false
+```
+
+#### Errors
+
+`openapi-path-templating` provides a structured error class hierarchy,
+enabling precise error handling across path templating operations.
+
+```js
+import { OpenAPIPathTemplatingError, OpenAPIPathTemplatingParseError } from 'openapi-path-templating';
+```
+
+**OpenAPIPathTemplatingError** is the base class for all errors. **OpenAPIPathTemplatingParseError** is thrown when parsing fails unexpectedly
+and includes additional context about the path template that failed to parse.
+Passing a non-string value to the `parse` function throws a `TypeError`.
+
+```js
+import { parse, OpenAPIPathTemplatingParseError } from 'openapi-path-templating';
+
+try {
+  parse('/pets/{petId}');
+} catch (error) {
+  if (error instanceof OpenAPIPathTemplatingParseError) {
+    console.log(error.pathTemplate); // the path template that failed to parse
+  }
+}
 ```
 
 #### Grammar

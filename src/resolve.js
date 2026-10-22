@@ -27,9 +27,7 @@ const resolve = (pathTemplate, parameters, options = {}) => {
 
   if (!parseResult.result.success) return pathTemplate;
 
-  const parts = [];
-
-  parseResult.ast.translate(parts);
+  const parts = parseResult.tree;
 
   const resolvedParts = parts
     .filter(([type]) => significantTypes.includes(type))

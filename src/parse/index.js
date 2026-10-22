@@ -1,27 +1,48 @@
-import { Ast as AST, Parser } from 'apg-lite';
+import { Parser, Stats } from 'apg-lite';
 
-import Grammar from '../path-templating.js';
-import slashCallback from './callbacks/slash.js';
-import pathTemplateCallback from './callbacks/path-template.js';
-import pathLiteralCallback from './callbacks/path-literal.js';
-import templateExpressionCallback from './callbacks/template-expression.js';
-import templateExpressionParamNameCallback from './callbacks/template-expression-param-name.js';
+import Grammar from '../grammar.js';
+import ListTranslator from './translators/ListTranslator.js';
+import Trace from './trace/Trace.js';
+import OpenAPIPathTemplatingParseError from '../errors/OpenAPIPathTemplatingParseError.js';
 
 const grammar = new Grammar();
 
-const parse = (pathTemplate) => {
-  const parser = new Parser();
+const parse = (
+  pathTemplate,
+  { translator = new ListTranslator(), stats = false, trace = false } = {},
+) => {
+  if (typeof pathTemplate !== 'string') {
+    throw new TypeError('Path template must be a string');
+  }
 
-  parser.ast = new AST();
-  parser.ast.callbacks['path-template'] = pathTemplateCallback;
-  parser.ast.callbacks['slash'] = slashCallback;
-  parser.ast.callbacks['path-literal'] = pathLiteralCallback;
-  parser.ast.callbacks['template-expression'] = templateExpressionCallback;
-  parser.ast.callbacks['template-expression-param-name'] = templateExpressionParamNameCallback;
+  try {
+    const parser = new Parser();
 
-  const result = parser.parse(grammar, 'path-template', pathTemplate);
+    if (translator) parser.ast = translator;
+    if (stats) parser.stats = new Stats();
+    if (trace) parser.trace = new Trace();
 
-  return { result, ast: parser.ast };
+    const result = parser.parse(grammar, 'path-template', pathTemplate);
+
+    return {
+      result,
+      tree: result.success && translator ? parser.ast.getTree() : undefined,
+      stats: parser.stats,
+      trace: parser.trace,
+      /**
+       * @deprecated retained for backward compatibility, use `tree` instead
+       */
+      ast: parser.ast,
+    };
+  } catch (error) {
+    throw new OpenAPIPathTemplatingParseError(
+      'Unexpected error during OpenAPI Path Templating parsing',
+      {
+        cause: error,
+        pathTemplate,
+      },
+    );
+  }
 };
 
 export default parse;

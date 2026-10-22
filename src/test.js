@@ -1,4 +1,5 @@
 import parse from './parse/index.js';
+import ListTranslator from './parse/translators/ListTranslator.js';
 
 /**
  * Test if a string is a path template.
@@ -10,14 +11,12 @@ import parse from './parse/index.js';
  */
 const test = (pathTemplate, { strict = false } = {}) => {
   try {
-    const parseResult = parse(pathTemplate);
+    const parseResult = parse(pathTemplate, { translator: strict ? new ListTranslator() : null });
 
     if (!parseResult.result.success) return false;
     if (!strict) return true;
 
-    const parts = [];
-    parseResult.ast.translate(parts);
-    return parts.some(([type]) => type === 'template-expression');
+    return parseResult.tree.some(([type]) => type === 'template-expression');
   } catch {
     return false;
   }
