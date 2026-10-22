@@ -197,7 +197,7 @@ export interface AmbiguityOptions {
 /**
  * Matching
  */
-export function match(pathTemplates: PathTemplate | PathTemplate[], options?: MatchOptions): MatchFunction;
+export function match(pathTemplates: PathTemplate | readonly PathTemplate[], options?: MatchOptions): MatchFunction;
 
 export interface MatchOptions extends ToRegExpOptions {
   readonly precedence?: 'concrete' | 'order';

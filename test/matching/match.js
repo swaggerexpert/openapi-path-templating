@@ -43,6 +43,27 @@ describe('matching', function () {
       );
     });
 
+    specify('should skip path template with malformed percent-encoding in values', function () {
+      assert.deepEqual(match(['/{a}/x', '/%FF/{b}'])('/%FF/x'), {
+        pathTemplate: '/%FF/{b}',
+        parameters: { b: 'x' },
+      });
+      assert.deepEqual(match(['/pets/{id}', '/pets/%FF'], { precedence: 'order' })('/pets/%FF'), {
+        pathTemplate: '/pets/%FF',
+        parameters: {},
+      });
+    });
+
+    specify('should match path templates regardless of their first path segment', function () {
+      const matchPath = match(['/{entity}/{id}', '/pets/{id}', '/owners/{id}', '/']);
+
+      assert.strictEqual(matchPath('/pets/1').pathTemplate, '/pets/{id}');
+      assert.strictEqual(matchPath('/owners/1').pathTemplate, '/owners/{id}');
+      assert.strictEqual(matchPath('/books/1').pathTemplate, '/{entity}/{id}');
+      assert.strictEqual(matchPath('/').pathTemplate, '/');
+      assert.strictEqual(match('/%7e/{x}')('/%7E/1').pathTemplate, '/%7e/{x}');
+    });
+
     specify('should decode template expression values', function () {
       const matchPath = match(['/repos/{owner}/{repo}', '/repos/{owner}/{repo}/contents/{path}']);
 
@@ -103,6 +124,18 @@ describe('matching', function () {
         );
       });
 
+      specify('should throw on invalid decode option', function () {
+        assert.throws(() => match('/pets/{id}', { decode: true }), TypeError);
+      });
+
+      specify('should propagate errors of custom decoder', function () {
+        const decode = () => {
+          throw new Error('boom');
+        };
+
+        assert.throws(() => match('/pets/{id}', { decode })('/pets/7'), 'boom');
+      });
+
       specify('should use custom decoder', function () {
         const decode = (value) => value.toUpperCase();
 
@@ -134,12 +167,46 @@ describe('matching', function () {
         assert.isNotNull(match('/pets', { optionalTrailingSlash: true })('/pets/'));
         assert.isNotNull(match('/Pets', { caseSensitive: false })('/pets'));
       });
+
+      specify('should match more concrete path templates first', function () {
+        assert.strictEqual(
+          match(['/api', '/api/pets'], { prefix: true })('/api/pets/1').pathTemplate,
+          '/api/pets',
+        );
+        assert.strictEqual(
+          match(['/api', '/api/pets'], { prefix: true })('/api/owners').pathTemplate,
+          '/api',
+        );
+        assert.strictEqual(
+          match(['/pets/{id}', '/pets/mine/'], { optionalTrailingSlash: true })('/pets/mine')
+            .pathTemplate,
+          '/pets/mine/',
+        );
+        assert.strictEqual(
+          match(['/pets/{id}', '/Pets/mine'], { caseSensitive: false })('/PETS/mine').pathTemplate,
+          '/Pets/mine',
+        );
+      });
     });
 
     context('given invalid path template', function () {
       specify('should throw', function () {
         assert.throws(() => match('/{'), OpenAPIPathTemplatingParseError);
         assert.throws(() => match(['/pets', 1]), TypeError);
+      });
+
+      specify('should throw on repeated template expression names', function () {
+        assert.throws(() => match('/pets/{id}/owners/{id}'), OpenAPIPathTemplatingParseError);
+      });
+
+      specify('should report original path template', function () {
+        try {
+          match('/pets/{', { normalizer: (pathTemplate) => `${pathTemplate} ` });
+          assert.fail('should have thrown');
+        } catch (error) {
+          assert.instanceOf(error, OpenAPIPathTemplatingParseError);
+          assert.strictEqual(error.pathTemplate, '/pets/{');
+        }
       });
     });
   });
