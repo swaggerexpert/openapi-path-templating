@@ -11,10 +11,8 @@ const isIdentical = (pathTemplate1, pathTemplate2, { normalizer = normalize } = 
   if (!parseResult1.result.success) return false;
   if (!parseResult2.result.success) return false;
 
-  const parts1 = [];
-  const parts2 = [];
-  parseResult1.ast.translate(parts1);
-  parseResult2.ast.translate(parts2);
+  const parts1 = parseResult1.tree;
+  const parts2 = parseResult2.tree;
 
   if (parts1.length !== parts2.length) return false;
 

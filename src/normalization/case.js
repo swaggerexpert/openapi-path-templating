@@ -11,9 +11,7 @@ const caseNormalizer = (pathTemplate) => {
 
   if (!parseResult.result.success) return pathTemplate;
 
-  const parts = [];
-
-  parseResult.ast.translate(parts);
+  const parts = parseResult.tree;
 
   return parts.reduce((pathTemplateNormalized, [type, value]) => {
     let normalizedValue = value;
