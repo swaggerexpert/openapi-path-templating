@@ -343,16 +343,16 @@ regExp.test('/pets/1/'); // => false
 
 Following options are supported:
 
-- `end` (default: `true`) - when `false`, the regular expression matches path prefix that ends at segment boundary
-- `trailing` (default: `false`) - when `true`, the regular expression matches optional trailing slash
-- `sensitive` (default: `true`) - when `false`, path literals are matched case-insensitively
+- `prefix` (default: `false`) - when `true`, the regular expression matches path prefix that ends at segment boundary
+- `optionalTrailingSlash` (default: `false`) - when `true`, the regular expression matches optional trailing slash
+- `caseSensitive` (default: `true`) - when `false`, path literals are matched case-insensitively
 
 ```js
 import { toRegExp } from 'openapi-path-templating';
 
-toRegExp('/api/{version}', { end: false }).regExp.exec('/api/v1/pets'); // => ['/api/v1', 'v1']
-toRegExp('/pets', { trailing: true }).regExp.test('/pets/'); // => true
-toRegExp('/Pets', { sensitive: false }).regExp.test('/pets'); // => true
+toRegExp('/api/{version}', { prefix: true }).regExp.exec('/api/v1/pets'); // => ['/api/v1', 'v1']
+toRegExp('/pets', { optionalTrailingSlash: true }).regExp.test('/pets/'); // => true
+toRegExp('/Pets', { caseSensitive: false }).regExp.test('/pets'); // => true
 ```
 
 Invalid path template causes `OpenAPIPathTemplatingParseError` to be thrown.

@@ -171,9 +171,9 @@ interface ResolveOptions {
 export function toRegExp(pathTemplate: PathTemplate, options?: ToRegExpOptions): ToRegExpResult;
 
 export interface ToRegExpOptions {
-  readonly end?: boolean;
-  readonly trailing?: boolean;
-  readonly sensitive?: boolean;
+  readonly prefix?: boolean;
+  readonly optionalTrailingSlash?: boolean;
+  readonly caseSensitive?: boolean;
 }
 
 export interface ToRegExpResult {

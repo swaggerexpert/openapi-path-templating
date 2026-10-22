@@ -80,31 +80,33 @@ describe('toRegExp', function () {
     });
   });
 
-  context('given end option', function () {
+  context('given prefix option', function () {
     specify('should match path prefix ending at segment boundary', function () {
-      const { regExp } = toRegExp('/api/{version}', { end: false });
+      const { regExp } = toRegExp('/api/{version}', { prefix: true });
 
       assert.strictEqual(regExp.exec('/api/v1/pets')[0], '/api/v1');
       assert.isTrue(regExp.test('/api/v1'));
       assert.isFalse(regExp.test('/apix/v1'));
-      assert.isTrue(toRegExp('/', { end: false }).regExp.test('/pets'));
-      assert.isTrue(toRegExp('/api/', { end: false }).regExp.test('/api/pets'));
-      assert.isFalse(toRegExp('/api/', { end: false, trailing: true }).regExp.test('/apix'));
+      assert.isTrue(toRegExp('/', { prefix: true }).regExp.test('/pets'));
+      assert.isTrue(toRegExp('/api/', { prefix: true }).regExp.test('/api/pets'));
+      assert.isFalse(
+        toRegExp('/api/', { prefix: true, optionalTrailingSlash: true }).regExp.test('/apix'),
+      );
     });
   });
 
-  context('given trailing option', function () {
+  context('given optionalTrailingSlash option', function () {
     specify('should match optional trailing slash', function () {
-      assert.isTrue(toRegExp('/pets', { trailing: true }).regExp.test('/pets/'));
-      assert.isTrue(toRegExp('/pets', { trailing: true }).regExp.test('/pets'));
-      assert.isTrue(toRegExp('/pets/', { trailing: true }).regExp.test('/pets'));
-      assert.isFalse(toRegExp('/pets', { trailing: true }).regExp.test('/pets//'));
+      assert.isTrue(toRegExp('/pets', { optionalTrailingSlash: true }).regExp.test('/pets/'));
+      assert.isTrue(toRegExp('/pets', { optionalTrailingSlash: true }).regExp.test('/pets'));
+      assert.isTrue(toRegExp('/pets/', { optionalTrailingSlash: true }).regExp.test('/pets'));
+      assert.isFalse(toRegExp('/pets', { optionalTrailingSlash: true }).regExp.test('/pets//'));
     });
   });
 
-  context('given sensitive option', function () {
+  context('given caseSensitive option', function () {
     specify('should match path literals case-insensitively', function () {
-      const { regExp } = toRegExp('/Pets/{petId}', { sensitive: false });
+      const { regExp } = toRegExp('/Pets/{petId}', { caseSensitive: false });
 
       assert.deepEqual(regExp.exec('/pets/Rex').slice(1), ['Rex']);
     });

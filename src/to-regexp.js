@@ -25,7 +25,10 @@ const literalToRegExp = (value) =>
     )
     .join('');
 
-const toRegExp = (pathTemplate, { end = true, trailing = false, sensitive = true } = {}) => {
+const toRegExp = (
+  pathTemplate,
+  { prefix = false, optionalTrailingSlash = false, caseSensitive = true } = {},
+) => {
   const parseResult = parse(pathTemplate);
 
   if (!parseResult.result.success) {
@@ -49,16 +52,16 @@ const toRegExp = (pathTemplate, { end = true, trailing = false, sensitive = true
     .join('\\/');
 
   const isRoot = segments.length === 0;
-  const endsWithSlash = isRoot || (trailingSlash && !trailing);
+  const endsWithSlash = isRoot || (trailingSlash && !optionalTrailingSlash);
   let pattern = `^\\/${source}`;
 
-  if (!isRoot && trailing) {
+  if (!isRoot && optionalTrailingSlash) {
     pattern += '\\/?';
   } else if (!isRoot && trailingSlash) {
     pattern += '\\/';
   }
 
-  if (end) {
+  if (!prefix) {
     pattern += '$';
   } else if (!endsWithSlash) {
     // prefix match must end at segment boundary
@@ -66,7 +69,7 @@ const toRegExp = (pathTemplate, { end = true, trailing = false, sensitive = true
   }
 
   return {
-    regExp: new RegExp(pattern, sensitive ? '' : 'i'),
+    regExp: new RegExp(pattern, caseSensitive ? '' : 'i'),
     parameters,
   };
 };
