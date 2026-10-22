@@ -166,6 +166,17 @@ interface ResolveOptions {
 }
 
 /**
+ * Regular expression
+ */
+export function toRegExp(pathTemplate: PathTemplate, options?: ToRegExpOptions): RegExp;
+
+export interface ToRegExpOptions {
+  readonly prefix?: boolean;
+  readonly optionalTrailingSlash?: boolean;
+  readonly caseSensitive?: boolean;
+}
+
+/**
  * Equivalence
  */
 export function isIdentical(pathTemplate1: PathTemplate, pathTemplate2: PathTemplate, options?: EquivalenceOptions): boolean;

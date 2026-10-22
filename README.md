@@ -52,6 +52,7 @@ It supports Path Templating defined in following OpenAPI specification versions:
       - [Tracing](#tracing)
     - [Validation](#validation)
     - [Resolution](#resolution)
+    - [Regular expression](#regular-expression)
     - [Normalization](#normalization)
     - [Matching](#matching)
     - [Errors](#errors)
@@ -309,6 +310,63 @@ resolve('/pets/{petId}', { petId: '/?#' }, {
   encoder: (component) => component, // no encoding
 }); // => "/pets//?#"
 ```
+
+#### Regular expression
+
+Path Templating can be converted into a regular expression by importing the **toRegExp** function and calling it.
+Regular expression has a capturing group for every template expression, in the same order as template expressions
+appear in the path template.
+
+```js
+import { toRegExp } from 'openapi-path-templating';
+
+const regExp = toRegExp('/pets/{petId}/owners/{ownerId}');
+
+regExp.test('/pets/1/owners/2'); // => true
+regExp.exec('/pets/1/owners/2'); // => ['/pets/1/owners/2', '1', '2']
+regExp.test('/pets/1/owners/2/toys'); // => false
+```
+
+Template expression matches one or more characters except `/`, `?` and `#`, and percent-encoded octet is matched as a whole.
+Captured values are not decoded. Path literals are matched case-sensitively, except hexadecimal digits of percent-encoded octets.
+Trailing slash is significant, `/pets` and `/pets/` are different paths.
+
+```js
+import { toRegExp } from 'openapi-path-templating';
+
+const regExp = toRegExp('/pets/{petId}');
+
+regExp.exec('/pets/a%2Fb'); // => ['/pets/a%2Fb', 'a%2Fb']
+regExp.test('/pets/a/b'); // => false
+regExp.test('/pets/1/'); // => false
+```
+
+When path segment contains multiple template expressions, the value is split at the first occurrence of the path literal
+between them, and template expression followed directly by another template expression matches a single character.
+Regular expression never backtracks catastrophically, so matching takes linear time even for untrusted input.
+
+```js
+import { toRegExp } from 'openapi-path-templating';
+
+toRegExp('/files/{name}.{ext}').exec('/files/report.tar.gz'); // => ['/files/report.tar.gz', 'report', 'tar.gz']
+toRegExp('/{a}{b}').exec('/xyz'); // => ['/xyz', 'x', 'yz']
+```
+
+Following options are supported:
+
+- `prefix` (default: `false`) - when `true`, the regular expression matches path prefix that ends at segment boundary, query or fragment
+- `optionalTrailingSlash` (default: `false`) - when `true`, the regular expression matches optional trailing slash
+- `caseSensitive` (default: `true`) - when `false`, path literals are matched case-insensitively
+
+```js
+import { toRegExp } from 'openapi-path-templating';
+
+toRegExp('/api/{version}', { prefix: true }).exec('/api/v1/pets'); // => ['/api/v1', 'v1']
+toRegExp('/pets', { optionalTrailingSlash: true }).test('/pets/'); // => true
+toRegExp('/Pets', { caseSensitive: false }).test('/pets'); // => true
+```
+
+Invalid path template causes `OpenAPIPathTemplatingParseError` to be thrown.
 
 #### Normalization
 
