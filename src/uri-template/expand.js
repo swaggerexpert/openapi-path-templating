@@ -11,7 +11,23 @@ const isUnreserved = (char) => /^[A-Za-z0-9\-._~]$/.test(char);
 const isReserved = (char) => /^[:/?#[\]@!$&'()*+,;=]$/.test(char);
 const isHexDigit = (char) => char !== undefined && /^[0-9A-Fa-f]$/.test(char);
 
-const textEncoder = new TextEncoder();
+/**
+ * Encodes code point as sequence of UTF-8 octets.
+ * https://datatracker.ietf.org/doc/html/rfc3629#section-3
+ */
+const toUTF8 = (codePoint) => {
+  if (codePoint < 0x80) return [codePoint];
+  if (codePoint < 0x800) return [0xc0 | (codePoint >> 6), 0x80 | (codePoint & 0x3f)];
+  if (codePoint < 0x10000) {
+    return [0xe0 | (codePoint >> 12), 0x80 | ((codePoint >> 6) & 0x3f), 0x80 | (codePoint & 0x3f)];
+  }
+  return [
+    0xf0 | (codePoint >> 18),
+    0x80 | ((codePoint >> 12) & 0x3f),
+    0x80 | ((codePoint >> 6) & 0x3f),
+    0x80 | (codePoint & 0x3f),
+  ];
+};
 
 /**
  * Encodes character as sequence of percent-encoded octets of its UTF-8 encoding.
@@ -20,14 +36,14 @@ const textEncoder = new TextEncoder();
 const percentEncode = (char) => {
   const codePoint = char.codePointAt(0);
 
+  // surrogates are not Unicode scalar values and have no UTF-8 encoding
   if (codePoint >= 0xd800 && codePoint <= 0xdfff) {
     throw new URIError('Lone surrogate cannot be encoded as UTF-8');
   }
 
-  return Array.from(
-    textEncoder.encode(char),
-    (octet) => `%${octet.toString(16).toUpperCase().padStart(2, '0')}`,
-  ).join('');
+  return toUTF8(codePoint)
+    .map((octet) => `%${octet.toString(16).toUpperCase().padStart(2, '0')}`)
+    .join('');
 };
 
 /**
