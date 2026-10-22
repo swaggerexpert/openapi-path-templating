@@ -48,7 +48,12 @@ const toURITemplate = (pathTemplate, parameters = []) => {
 
   const pathParameters = new Map();
   parameters
-    .filter((parameter) => parameter?.in === 'path' && typeof parameter.name === 'string')
+    // parameters are path parameters, unless their location says otherwise
+    .filter(
+      (parameter) =>
+        typeof parameter?.name === 'string' &&
+        (parameter.in === undefined || parameter.in === 'path'),
+    )
     .forEach((parameter) => {
       if (!pathParameters.has(parameter.name)) pathParameters.set(parameter.name, parameter);
     });

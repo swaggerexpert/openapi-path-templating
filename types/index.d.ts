@@ -174,7 +174,7 @@ export function toURITemplate(pathTemplate: PathTemplate, parameters?: readonly 
 
 export interface ParameterObject {
   readonly name: string;
-  readonly in: string;
+  readonly in?: string;
   readonly style?: string;
   readonly explode?: boolean;
   readonly allowReserved?: boolean;

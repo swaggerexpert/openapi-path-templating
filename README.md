@@ -329,7 +329,7 @@ of path parameters by the **toURITemplate** function.
 ```js
 import { toURITemplate } from 'openapi-path-templating';
 
-toURITemplate('/pets/{petId}', [{ name: 'petId', in: 'path', style: 'matrix', explode: true }]);
+toURITemplate('/pets/{petId}', [{ name: 'petId', style: 'matrix', explode: true }]);
 // => { uriTemplate: '/pets/{;petId*}', variables: { petId: 'petId' } }
 ```
 
@@ -341,7 +341,8 @@ toURITemplate('/pets/{petId}', [{ name: 'petId', in: 'path', style: 'matrix', ex
 | `explode: true` | `{petId*}` |
 | `allowReserved: true` | `{+petId}` (only for `style: 'simple'`, as RFC 6570 allows a single operator) |
 
-Parameter Objects not in path are ignored, and template expressions without a Parameter Object use default serialization.
+Parameter Objects are path parameters by default, so their `in` field can be omitted. Parameter Objects with `in` other than `path`
+(query, header or cookie parameters) are ignored, and template expressions without a Parameter Object use default serialization.
 Template expression names that are not valid URI Template variable names are percent-encoded,
 and `variables` maps template expression names to URI Template variable names.
 
@@ -358,7 +359,7 @@ Then, the URI Template is expanded by the **expandURITemplate** function, which 
 import { toURITemplate, expandURITemplate } from 'openapi-path-templating';
 
 const { uriTemplate, variables } = toURITemplate('/pets/{petId}', [
-  { name: 'petId', in: 'path', style: 'matrix', explode: true },
+  { name: 'petId', style: 'matrix', explode: true },
 ]);
 
 expandURITemplate(uriTemplate, { [variables.petId]: [3, 4] }); // => '/pets/;petId=3;petId=4'

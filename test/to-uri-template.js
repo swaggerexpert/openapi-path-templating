@@ -47,6 +47,22 @@ describe('toURITemplate', function () {
     assert.strictEqual(toURITemplate('/pets/{petId}', parameters).uriTemplate, '/pets/{petId}');
   });
 
+  specify('should consider parameters without location as path parameters', function () {
+    assert.strictEqual(
+      toURITemplate('/pets/{petId}', [{ name: 'petId', style: 'label' }]).uriTemplate,
+      '/pets/{.petId}',
+    );
+  });
+
+  specify('should pick path parameter among parameters with the same name', function () {
+    const parameters = [
+      { name: 'id', in: 'query', style: 'form', explode: true },
+      { name: 'id', in: 'path', style: 'label' },
+    ];
+
+    assert.strictEqual(toURITemplate('/pets/{id}', parameters).uriTemplate, '/pets/{.id}');
+  });
+
   specify('should percent-encode illegal variable names', function () {
     assert.deepEqual(toURITemplate('/{pet-id}/{❤️}/{a.b}'), {
       uriTemplate: '/{pet%2Did}/{%E2%9D%A4%EF%B8%8F}/{a%2Eb}',
