@@ -166,6 +166,22 @@ interface ResolveOptions {
 }
 
 /**
+ * Regular expression
+ */
+export function toRegExp(pathTemplate: PathTemplate, options?: ToRegExpOptions): ToRegExpResult;
+
+export interface ToRegExpOptions {
+  readonly end?: boolean;
+  readonly trailing?: boolean;
+  readonly sensitive?: boolean;
+}
+
+export interface ToRegExpResult {
+  readonly regExp: RegExp;
+  readonly parameters: string[];
+}
+
+/**
  * Equivalence
  */
 export function isIdentical(pathTemplate1: PathTemplate, pathTemplate2: PathTemplate, options?: EquivalenceOptions): boolean;
