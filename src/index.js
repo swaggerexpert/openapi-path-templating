@@ -19,7 +19,8 @@ export {
   percentEndingNormalizer as percentEncodingNormalizer,
   default as normalize,
 } from './normalization/index.js';
-export { default as isIdentical } from './equivalence/is-identical.js';
+export { default as isIdentical } from './matching/is-identical.js';
+export { default as isAmbiguous } from './matching/is-ambiguous.js';
 
 export { default as OpenAPIPathTemplatingError } from './errors/OpenAPIPathTemplatingError.js';
 export { default as OpenAPIPathTemplatingParseError } from './errors/OpenAPIPathTemplatingParseError.js';

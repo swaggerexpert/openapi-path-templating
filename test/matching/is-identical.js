@@ -2,7 +2,7 @@ import { assert } from 'chai';
 
 import { isIdentical, identityNormalizer } from '../../src/index.js';
 
-describe('equivalence', function () {
+describe('matching', function () {
   context('isIdentical', function () {
     specify('should consider path templates identical', function () {
       assert.isTrue(isIdentical('/pets/{petId}', '/pets/{name}'));
