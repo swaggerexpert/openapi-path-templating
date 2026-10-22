@@ -36,6 +36,7 @@ describe('matching', function () {
       assert.isFalse(isAmbiguous('/files/{name}.json', '/files/{name}'));
       assert.isFalse(isAmbiguous('/files/{name}.json', '/files/{name}.xml'));
       assert.isFalse(isAmbiguous('/{a}', '/{b}{c}'));
+      assert.isTrue(isAmbiguous('/{y}/{x}{y}/', '/aa{x}/{x}/'));
     });
 
     specify('should treat percent-encoded octets as single characters', function () {
