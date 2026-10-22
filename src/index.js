@@ -10,6 +10,11 @@ export { default as Trace } from './parse/trace/Trace.js';
 export { default as test } from './test.js';
 
 export { default as resolve, encodePathComponent } from './resolve.js';
+export { default as toURITemplate } from './to-uri-template.js';
+
+export { default as parseURITemplate } from './uri-template/parse.js';
+export { default as testURITemplate } from './uri-template/test.js';
+export { default as expandURITemplate } from './uri-template/expand.js';
 export { default as toRegExp } from './to-regexp.js';
 
 export {

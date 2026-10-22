@@ -162,8 +162,62 @@ interface Parameters {
 }
 
 interface ResolveOptions {
-  encoder: (pathSegment: string, parameterName?: string) => string;
+  readonly encoder?: (pathSegment: string, parameterName?: string) => string;
+  /**
+   * Serializes values using Parameter Objects as defined by RFC 6570; can't be combined with encoder.
+   */
+  readonly parameterObjects?: readonly ParameterObject[] | null;
 }
+
+/**
+ * URI Template
+ */
+export type URITemplate = string;
+
+export function toURITemplate(pathTemplate: PathTemplate, parameterObjects?: readonly ParameterObject[] | null): URITemplate;
+
+export interface ParameterObject {
+  readonly name: string;
+  readonly in?: string;
+  readonly style?: string;
+  readonly explode?: boolean;
+  readonly allowReserved?: boolean;
+}
+
+export function parseURITemplate(uriTemplate: URITemplate): URITemplateParseResult;
+export function testURITemplate(uriTemplate: string): uriTemplate is URITemplate;
+export function expandURITemplate(uriTemplate: URITemplate, variables?: URITemplateVariables | null): string;
+
+export interface URITemplateParseResult {
+  readonly result: ParseResult['result'];
+  readonly tree?: URITemplateNode;
+}
+
+export interface URITemplateNode {
+  readonly type: 'URITemplate';
+  readonly parts: Array<URITemplateLiteralNode | URITemplateExpressionNode>;
+}
+export interface URITemplateLiteralNode {
+  readonly type: 'Literal';
+  readonly value: string;
+}
+export interface URITemplateExpressionNode {
+  readonly type: 'Expression';
+  readonly operator: '' | '+' | '#' | '.' | '/' | ';' | '?' | '&' | '=' | ',' | '!' | '@' | '|';
+  readonly variables: URITemplateVariableNode[];
+}
+export interface URITemplateVariableNode {
+  readonly name: string;
+  readonly prefix?: number;
+  readonly explode: boolean;
+}
+
+export type URITemplatePrimitive = string | number | boolean | null | undefined;
+export type URITemplateValue =
+  | URITemplatePrimitive
+  | readonly URITemplatePrimitive[]
+  | { readonly [key: string]: URITemplatePrimitive };
+export type URITemplateVariables = { readonly [name: string]: URITemplateValue };
 
 /**
  * Regular expression
@@ -270,4 +324,5 @@ export declare class OpenAPIPathTemplatingError extends Error {
 }
 export declare class OpenAPIPathTemplatingParseError extends OpenAPIPathTemplatingError {
   pathTemplate?: PathTemplate;
+  uriTemplate?: URITemplate;
 }

@@ -52,12 +52,15 @@ It supports Path Templating defined in following OpenAPI specification versions:
       - [Tracing](#tracing)
     - [Validation](#validation)
     - [Resolution](#resolution)
+      - [Parameter serialization](#parameter-serialization)
+    - [URI Template](#uri-template)
     - [Regular expression](#regular-expression)
     - [Normalization](#normalization)
     - [Matching](#matching)
     - [Errors](#errors)
     - [Grammar](#grammar)
 - [More about OpenAPI Path Templating](#more-about-openapi-path-templating)
+- [Setting up for development](#setting-up-for-development)
 - [License](#license)
 
 
@@ -313,6 +316,92 @@ resolve('/pets/{petId}', { petId: '/?#' }, {
   encoder: (pathSegment) => pathSegment, // no encoding
 }); // => "/pets//?#"
 ```
+
+##### Parameter serialization
+
+Path parameters are serialized according to `style`, `explode` and `allowReserved` fields of their
+[Parameter Objects](https://spec.openapis.org/oas/v3.2.0.html#parameter-object), which are defined in terms of
+[RFC 6570 URI Templates](https://www.rfc-editor.org/rfc/rfc6570) (see [Appendix C](https://spec.openapis.org/oas/v3.2.0.html#appendix-c-using-rfc6570-based-serialization)
+of the OpenAPI Specification). Providing Parameter Objects via `parameterObjects` option serializes the values this way.
+
+```js
+import { resolve } from 'openapi-path-templating';
+
+const parameterObjects = [{ name: 'petId', in: 'path', style: 'matrix', explode: true }];
+
+resolve('/pets/{petId}', { petId: [3, 4] }, { parameterObjects }); // => '/pets/;petId=3;petId=4'
+resolve('/pets/{petId}', { petId: { R: 100, G: 200 } }, { parameterObjects }); // => '/pets/;R=100;G=200'
+```
+
+Parameter Objects are path parameters by default, so their `in` field can be omitted. Parameter Objects with `in` other than `path`
+(query, header or cookie parameters) are ignored, so `parameters` of an Operation Object can be provided as they are.
+Template expressions without a Parameter Object use default serialization (`style: 'simple'`, `explode: false`),
+and template expressions without a value, or with a value undefined by RFC 6570 (`undefined`, `null`, empty array or object), are kept unresolved.
+Plain objects are serialized as name/value pairs, and other values as strings using `String(value)`.
+Note that `String(date)` depends on the time zone, so pass `date.toISOString()` to serialize dates in ISO 8601 format.
+
+When `parameterObjects` option is provided, even an empty array, all values are encoded according to RFC 6570 rules,
+which differ from the default encoding: percent-encoded values are encoded again, and `[` and `]` are percent-encoded.
+`parameterObjects` and `encoder` options cannot be used together.
+
+```js
+import { resolve } from 'openapi-path-templating';
+
+resolve('/pets/{petId}', { petId: '[a%20b]' }); // => '/pets/[a%20b]'
+resolve('/pets/{petId}', { petId: '[a%20b]' }, { parameterObjects: [] }); // => '/pets/%5Ba%2520b%5D'
+```
+
+#### URI Template
+
+Parameter serialization is built on two functions, which can be used separately.
+
+**toURITemplate** converts Path Templating into a URI Template using Parameter Objects of path parameters.
+
+```js
+import { toURITemplate } from 'openapi-path-templating';
+
+toURITemplate('/pets/{petId}', [{ name: 'petId', style: 'matrix', explode: true }]); // => '/pets/{;petId*}'
+```
+
+| Parameter Object field | URI Template |
+|---|---|
+| `style: 'simple'` (default) | `{petId}` |
+| `style: 'label'` | `{.petId}` |
+| `style: 'matrix'` | `{;petId}` |
+| `explode: true` | `{petId*}` |
+| `allowReserved: true` | `{+petId}` (only for `style: 'simple'`, as RFC 6570 allows a single operator) |
+
+Template expression names that are not valid URI Template variable names (e.g. containing `-`) are percent-encoded,
+as described in [Appendix C.4.4](https://spec.openapis.org/oas/v3.2.0.html#illegal-variable-names-as-parameter-names).
+Values for such variables must be provided under the percent-encoded names, which [parameter serialization](#parameter-serialization) does automatically.
+
+```js
+import { toURITemplate } from 'openapi-path-templating';
+
+toURITemplate('/pets/{pet-id}'); // => '/pets/{pet%2Did}'
+```
+
+**expandURITemplate** expands any URI Template, encoding the values according to RFC 6570 rules.
+`expandURITemplate`, **parseURITemplate** and **testURITemplate** are **100% compliant**
+with the [URI Template test suite](https://github.com/uri-templates/uritemplate-test).
+Single quote `'` is allowed in literals, as per [verified erratum 6937](https://www.rfc-editor.org/errata/eid6937).
+
+```js
+import { expandURITemplate, parseURITemplate, testURITemplate } from 'openapi-path-templating';
+
+expandURITemplate('/pets/{;petId*}', { petId: [3, 4] }); // => '/pets/;petId=3;petId=4'
+expandURITemplate('/search{?q,lang}', { q: 'cat dog', lang: 'en' }); // => '/search?q=cat%20dog&lang=en'
+expandURITemplate('{+path}', { path: '/foo/bar' }); // => '/foo/bar'
+
+testURITemplate('/search{?q,lang}'); // => true
+testURITemplate('{/id*'); // => false
+testURITemplate('{!id}'); // => false (operator reserved for future extensions)
+
+parseURITemplate('{?q:3}').tree;
+// => { type: 'URITemplate', parts: [{ type: 'Expression', operator: '?', variables: [{ name: 'q', prefix: 3, explode: false }] }] }
+```
+
+Invalid URI Template causes `OpenAPIPathTemplatingParseError` to be thrown by `expandURITemplate`.
 
 #### Regular expression
 
@@ -668,6 +757,21 @@ ALPHA               = %x41-5A / %x61-7A   ; A-Z / a-z
 DIGIT               = %x30-39            ; 0-9
 HEXDIG              = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 ```
+
+## Setting up for development
+
+```sh
+ # Clone with submodules (recommended)
+ $ git clone --recurse-submodules https://github.com/swaggerexpert/openapi-path-templating.git
+
+ # Or initialize submodules after cloning
+ $ git submodule update --init
+
+ # Install dependencies
+ $ npm install
+```
+
+The project uses the [URI Template test suite](https://github.com/uri-templates/uritemplate-test) as a git submodule for testing.
 
 ## License
 
