@@ -526,6 +526,69 @@ isAmbiguous('/{entity}/me', '/books/./{id}'); // => true
 isAmbiguous('/{entity}/me', '/books/./{id}', { normalizer: identityNormalizer }); // => false
 ```
 
+##### Path matching
+
+`match`
+
+Matches concrete path against path templates. `match` compiles path templates once and returns a function,
+which matches a concrete path and returns the matching path template together with decoded values
+of its template expressions, or `null` when no path template matches.
+
+```js
+import { match } from 'openapi-path-templating';
+
+const matchPath = match(['/pets/{petId}', '/pets/mine']);
+
+matchPath('/pets/mine'); // => { pathTemplate: '/pets/mine', parameters: {} }
+matchPath('/pets/7'); // => { pathTemplate: '/pets/{petId}', parameters: { petId: '7' } }
+matchPath('/owners/1'); // => null
+```
+
+Concrete path templates are matched before templated ones, and more concrete path templates are matched
+before less concrete ones (see [Ambiguity](#ambiguity)). [Ambiguous](#ambiguity) path templates are matched in list order.
+Router-like matching, where the first path template in the list that matches wins, is available via `precedence` option.
+
+```js
+import { match } from 'openapi-path-templating';
+
+match(['/pets/{petId}', '/pets/mine'], { precedence: 'order' })('/pets/mine');
+// => { pathTemplate: '/pets/{petId}', parameters: { petId: 'mine' } }
+```
+
+Values of template expressions are decoded using [decodeURIComponent](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent),
+making `match` the inverse of [resolve](#resolution). Because template expression values never contain unescaped `/`,
+the encoded `/` is matched as part of the value.
+
+```js
+import { match } from 'openapi-path-templating';
+
+const matchPath = match(['/repos/{owner}/{repo}', '/repos/{owner}/{repo}/contents/{path}']);
+
+matchPath('/repos/acme/site/contents/docs%2Findex.md');
+// => { pathTemplate: '/repos/{owner}/{repo}/contents/{path}', parameters: { owner: 'acme', repo: 'site', path: 'docs/index.md' } }
+matchPath('/repos/acme/site/contents/docs/index.md'); // => null
+```
+
+Query and fragment are ignored. Path that doesn't start with `/` or contains malformed percent-encoding never matches.
+To match a full URL, pass its path: `matchPath(new URL(url).pathname)`.
+
+Following options are supported:
+
+- `precedence` (default: `'concrete'`) - `'concrete'` matches more concrete path templates first, `'order'` matches path templates in list order
+- `decode` (default: `decodeURIComponent`) - function decoding template expression values, or `false` to keep them encoded
+- `normalizer` (default: `identityNormalizer`) - [normalizer](#normalization) applied to path templates and the path before matching
+- `prefix`, `optionalTrailingSlash` and `caseSensitive` - see [Regular expression](#regular-expression)
+
+```js
+import { match, normalize } from 'openapi-path-templating';
+
+match('/files/{path}', { decode: false })('/files/docs%2Findex.md'); // => { pathTemplate: '/files/{path}', parameters: { path: 'docs%2Findex.md' } }
+match('/pets/mine', { normalizer: normalize })('/pets/%6Dine'); // => { pathTemplate: '/pets/mine', parameters: {} }
+match('/api/{version}', { prefix: true })('/api/v1/pets'); // => { pathTemplate: '/api/{version}', parameters: { version: 'v1' } }
+```
+
+Invalid path template causes `OpenAPIPathTemplatingParseError` to be thrown when compiling.
+
 #### Errors
 
 `openapi-path-templating` provides a structured error class hierarchy,
