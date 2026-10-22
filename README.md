@@ -7,8 +7,8 @@
 [![try on RunKit](https://img.shields.io/badge/try%20on-RunKit-brightgreen.svg?style=flat)](https://npm.runkit.com/openapi-path-templating)
 [![Tidelift](https://tidelift.com/badges/package/npm/openapi-path-templating)](https://tidelift.com/subscription/pkg/npm-openapi-path-templating?utm_source=npm-openapi-path-templating&utm_medium=referral&utm_campaign=readme)
 
-[OpenAPI Path Templating](https://spec.openapis.org/oas/v3.1.1.html#path-templating) refers to the usage of template expressions, delimited by curly braces (`{}`), to mark a section of a URL path as replaceable using path parameters.
-Each template expression in the path MUST correspond to a path parameter that is included in the [Path Item](https://spec.openapis.org/oas/v3.1.1.html#path-item-object) itself and/or in each of the Path Item's [Operations](https://spec.openapis.org/oas/v3.1.1.html#operation-object).
+[OpenAPI Path Templating](https://spec.openapis.org/oas/v3.2.0.html#path-templating) refers to the usage of template expressions, delimited by curly braces (`{}`), to mark a section of a URL path as replaceable using path parameters.
+Each template expression in the path MUST correspond to a path parameter that is included in the [Path Item](https://spec.openapis.org/oas/v3.2.0.html#path-item-object) itself and/or in each of the Path Item's [Operations](https://spec.openapis.org/oas/v3.2.0.html#operation-object).
 An exception is if the path item is empty, for example due to ACL constraints, matching path parameters are not required.
 
 `openapi-path-templating` is a **parser**, **validator**, **resolver** and **matcher** for OpenAPI Path Templating,
@@ -24,6 +24,7 @@ It supports Path Templating defined in following OpenAPI specification versions:
 - [OpenAPI 3.0.4](https://spec.openapis.org/oas/v3.0.4.html#path-templating)
 - [OpenAPI 3.1.0](https://spec.openapis.org/oas/v3.1.0.html#path-templating)
 - [OpenAPI 3.1.1](https://spec.openapis.org/oas/v3.1.1.html#path-templating)
+- [OpenAPI 3.2.0](https://spec.openapis.org/oas/v3.2.0.html#path-templating)
 
 
 <table>
