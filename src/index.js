@@ -20,6 +20,7 @@ export {
   default as normalize,
 } from './normalization/index.js';
 export { default as isIdentical } from './equivalence/is-identical.js';
+export { default as isAmbiguous } from './ambiguity/is-ambiguous.js';
 
 export { default as OpenAPIPathTemplatingError } from './errors/OpenAPIPathTemplatingError.js';
 export { default as OpenAPIPathTemplatingParseError } from './errors/OpenAPIPathTemplatingParseError.js';

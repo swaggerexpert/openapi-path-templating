@@ -430,6 +430,40 @@ isIdentical('/API/%2faPi/%7bsection%7d/./../profile', '/API/%2FaPi/profile', { n
 isIdentical('/api/{userId}/account/Account', '/api/{userId}/profile/../account/%41ccount', { normalizer: identityNormalizer }); // => false
 ```
 
+##### Ambiguity
+
+`isAmbiguous`
+
+Determines whether two path templates may lead to ambiguous resolution. Two path templates are ambiguous when
+there is a concrete path matched by both of them and neither of them is more concrete than the other,
+so the concrete path cannot be unambiguously matched to one of them.
+
+Template expression matches one or more characters except `/`. One path template is more concrete than the other
+when every path matched by it is also matched by the other one. In that case the more concrete path template
+is matched first, and the path templates are not ambiguous. Identical path templates are not considered ambiguous,
+use [isIdentical](#equivalence) to detect them.
+
+```js
+import { isAmbiguous } from 'openapi-path-templating';
+
+isAmbiguous('/{entity}/me', '/books/{id}'); // => true (/books/me is matched by both)
+isAmbiguous('/files/{name}.json', '/files/report.{ext}'); // => true (/files/report.json is matched by both)
+isAmbiguous('/pets/{petId}', '/pets/mine'); // => false (/pets/mine is more concrete)
+isAmbiguous('/shops/{shopId}/pets/{petId}', '/shops/{shopId}/pets/_search'); // => false (/shops/{shopId}/pets/_search is more concrete)
+isAmbiguous('/pets/{petId}', '/pets/{name}'); // => false (identical)
+isAmbiguous('/pets/{petId}', '/animals/{name}'); // => false (no common path)
+```
+
+By default, [normalization](#normalization) is applied to path templates prior to establishing ambiguity.
+Custom normalizer can be provided via `normalizer` option.
+
+```js
+import { isAmbiguous, identityNormalizer } from 'openapi-path-templating';
+
+isAmbiguous('/{entity}/me', '/books/./{id}'); // => true
+isAmbiguous('/{entity}/me', '/books/./{id}', { normalizer: identityNormalizer }); // => false
+```
+
 #### Errors
 
 `openapi-path-templating` provides a structured error class hierarchy,

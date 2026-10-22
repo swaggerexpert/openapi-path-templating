@@ -175,6 +175,15 @@ export interface EquivalenceOptions {
 }
 
 /**
+ * Ambiguity
+ */
+export function isAmbiguous(pathTemplate1: PathTemplate, pathTemplate2: PathTemplate, options?: AmbiguityOptions): boolean;
+
+export interface AmbiguityOptions {
+  normalizer?: Normalizer;
+}
+
+/**
  * Normalization
  */
 export function normalize(pathTemplate: PathTemplate): PathTemplate;
