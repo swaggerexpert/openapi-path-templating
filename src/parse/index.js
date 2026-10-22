@@ -1,6 +1,7 @@
 import { Parser, Stats } from 'apg-lite';
 
 import Grammar from '../grammar.js';
+import ASTTranslator from './translators/ASTTranslator.js';
 import ListTranslator from './translators/ListTranslator.js';
 import Trace from './trace/Trace.js';
 import OpenAPIPathTemplatingParseError from '../errors/OpenAPIPathTemplatingParseError.js';
@@ -9,7 +10,7 @@ const grammar = new Grammar();
 
 const parse = (
   pathTemplate,
-  { translator = new ListTranslator(), stats = false, trace = false } = {},
+  { translator = new ASTTranslator(), stats = false, trace = false } = {},
 ) => {
   if (typeof pathTemplate !== 'string') {
     throw new TypeError('Path template must be a string');
@@ -23,6 +24,7 @@ const parse = (
     if (trace) parser.trace = new Trace();
 
     const result = parser.parse(grammar, 'path-template', pathTemplate);
+    let ast;
 
     return {
       result,
@@ -32,7 +34,15 @@ const parse = (
       /**
        * @deprecated retained for backward compatibility, use `tree` instead
        */
-      ast: parser.ast,
+      get ast() {
+        if (ast === undefined) {
+          const listParser = new Parser();
+          listParser.ast = new ListTranslator();
+          listParser.parse(grammar, 'path-template', pathTemplate);
+          ast = listParser.ast;
+        }
+        return ast;
+      },
     };
   } catch (error) {
     throw new OpenAPIPathTemplatingParseError(

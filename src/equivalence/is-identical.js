@@ -1,12 +1,13 @@
 import parse from '../parse/index.js';
+import ListTranslator from '../parse/translators/ListTranslator.js';
 import normalize from '../normalization/index.js';
 
 const isIdentical = (pathTemplate1, pathTemplate2, { normalizer = normalize } = {}) => {
   if (typeof pathTemplate1 !== 'string') return false;
   if (typeof pathTemplate2 !== 'string') return false;
 
-  const parseResult1 = parse(normalizer(pathTemplate1));
-  const parseResult2 = parse(normalizer(pathTemplate2));
+  const parseResult1 = parse(normalizer(pathTemplate1), { translator: new ListTranslator() });
+  const parseResult2 = parse(normalizer(pathTemplate2), { translator: new ListTranslator() });
 
   if (!parseResult1.result.success) return false;
   if (!parseResult2.result.success) return false;

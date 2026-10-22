@@ -5,6 +5,13 @@ import { parse, ASTTranslator } from '../../../src/index.js';
 describe('parse', function () {
   context('translators', function () {
     context('ASTTranslator', function () {
+      specify('should be the default translator', function () {
+        const parseResult = parse('/pets/a{petId}');
+        const { tree: ast } = parse('/pets/a{petId}', { translator: new ASTTranslator() });
+
+        assert.deepEqual(parseResult.tree, ast);
+      });
+
       specify('should translate a path template to an AST', function () {
         const parseResult = parse('/pets/a{petId}', { translator: new ASTTranslator() });
 

@@ -2,6 +2,7 @@ import { Parser } from 'apg-lite';
 
 import Grammar from '../grammar.js';
 import parse from '../parse/index.js';
+import ListTranslator from '../parse/translators/ListTranslator.js';
 
 /**
  * Implementation of https://datatracker.ietf.org/doc/html/rfc3986#section-6.2.2.2
@@ -12,7 +13,7 @@ const grammar = new Grammar();
 const parser = new Parser();
 
 const percentEndingNormalizer = (pathTemplate) => {
-  const parseResult = parse(pathTemplate);
+  const parseResult = parse(pathTemplate, { translator: new ListTranslator() });
 
   if (!parseResult.result.success) return pathTemplate;
 

@@ -6,8 +6,8 @@ type ResolvedPath = string;
  */
 export function parse(
   pathTemplate: PathTemplate,
-  options?: ParseOptions & { readonly translator?: ListTranslator },
-): ParseResult<ListTree> & { readonly ast: ListTranslator };
+  options?: ParseOptions & { readonly translator?: ASTTranslator },
+): ParseResult<ASTNode>;
 export function parse<TTree>(
   pathTemplate: PathTemplate,
   options: ParseOptions & { readonly translator: Translator<TTree> },
@@ -108,7 +108,7 @@ export type ASTNode = PathTemplateNode;
 
 export type XMLTree = string;
 
-export interface ParseResult<TTree = ListTree> {
+export interface ParseResult<TTree = ASTNode> {
   readonly result: {
     readonly success: boolean;
     readonly state: number;
@@ -125,7 +125,7 @@ export interface ParseResult<TTree = ListTree> {
   /**
    * @deprecated retained for backward compatibility, use `tree` instead
    */
-  readonly ast?: Translator;
+  readonly ast: ListTranslator;
 }
 
 export interface Stats {

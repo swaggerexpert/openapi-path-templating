@@ -102,43 +102,6 @@ const parseResult = parse('/pets/{petId}');
 
 `openapi-path-templating` provides several translators to convert the parse result into different tree representations.
 
-###### List translator
-
-**Default translator**. List of entries representation is available on parse result
-by default or when instance of `ListTranslator` is provided via a `translator` option to the `parse` function.
-Every entry is a `[type, text]` tuple, ordered as matched by the parser.
-
-```js
-import { parse } from 'openapi-path-templating';
-
-const { tree: list } = parse('/pets/{petId}');
-```
-
-or
-
-```js
-import { parse, ListTranslator } from 'openapi-path-templating';
-
-const { tree: list } = parse('/pets/{petId}', { translator: new ListTranslator() });
-```
-
-After running the above code, **list** variable has the following shape:
-
-```js
-[
-  [ 'path-template', '/pets/{petId}' ],
-  [ 'slash', '/' ],
-  [ 'path-literal', 'pets' ],
-  [ 'slash', '/' ],
-  [ 'template-expression', '{petId}' ],
-  [ 'template-expression-param-name', 'petId' ]
-]
-```
-
-> NOTE: for backward compatibility, parse result also exposes the deprecated `ast` field.
-> `parseResult.ast.translate(parts)` populates `parts` with the same list of entries as `parseResult.tree`.
-> Prefer `tree` in new code.
-
 ###### CST translator
 
 [Concrete Syntax Tree](https://en.wikipedia.org/wiki/Parse_tree) (Parse tree) representation is available on parse result
@@ -155,9 +118,17 @@ CST tree has a shape documented by [TypeScript typings (CSTNode)](https://github
 
 ###### AST translator
 
-[Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) representation is available on parse result
-when instance of `ASTTranslator` is provided via a `translator` option to the `parse` function.
+**Default translator**. [Abstract Syntax Tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree) representation is available on parse result
+by default or when instance of `ASTTranslator` is provided via a `translator` option to the `parse` function.
 AST is suitable to be consumed by implementations that need to analyze the structure of the path template.
+
+```js
+import { parse } from 'openapi-path-templating';
+
+const { tree: ast } = parse('/pets/a{petId}/');
+```
+
+or
 
 ```js
 import { parse, ASTTranslator } from 'openapi-path-templating';
@@ -188,6 +159,35 @@ After running the above code, **ast** variable has the following shape:
 ```
 
 AST tree has a shape documented by [TypeScript typings (ASTNode)](https://github.com/swaggerexpert/openapi-path-templating/blob/main/types/index.d.ts).
+
+###### List translator
+
+List of entries representation is available on parse result
+when instance of `ListTranslator` is provided via a `translator` option to the `parse` function.
+Every entry is a `[type, text]` tuple, ordered as matched by the parser.
+
+```js
+import { parse, ListTranslator } from 'openapi-path-templating';
+
+const { tree: list } = parse('/pets/{petId}', { translator: new ListTranslator() });
+```
+
+After running the above code, **list** variable has the following shape:
+
+```js
+[
+  [ 'path-template', '/pets/{petId}' ],
+  [ 'slash', '/' ],
+  [ 'path-literal', 'pets' ],
+  [ 'slash', '/' ],
+  [ 'template-expression', '{petId}' ],
+  [ 'template-expression-param-name', 'petId' ]
+]
+```
+
+> NOTE: for backward compatibility, parse result also exposes the deprecated `ast` field,
+> regardless of the translator used. `parseResult.ast.translate(parts)` populates `parts` with the same list of entries
+> as `ListTranslator` produces. Prefer `ListTranslator` in new code.
 
 ###### XML translator
 

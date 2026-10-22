@@ -1,4 +1,5 @@
 import parse from './parse/index.js';
+import ListTranslator from './parse/translators/ListTranslator.js';
 
 const isEncoded = (parameterValue) => {
   try {
@@ -23,7 +24,7 @@ const significantTypes = ['slash', 'path-literal', 'template-expression-param-na
 const resolve = (pathTemplate, parameters, options = {}) => {
   const defaultOptions = { encoder: encodePathComponent };
   const mergedOptions = { ...defaultOptions, ...options };
-  const parseResult = parse(pathTemplate);
+  const parseResult = parse(pathTemplate, { translator: new ListTranslator() });
 
   if (!parseResult.result.success) return pathTemplate;
 

@@ -1,4 +1,5 @@
 import parse from '../parse/index.js';
+import ListTranslator from '../parse/translators/ListTranslator.js';
 
 const significantTypes = ['slash', 'path-literal', 'template-expression'];
 
@@ -7,7 +8,7 @@ const significantTypes = ['slash', 'path-literal', 'template-expression'];
  */
 
 const caseNormalizer = (pathTemplate) => {
-  const parseResult = parse(pathTemplate);
+  const parseResult = parse(pathTemplate, { translator: new ListTranslator() });
 
   if (!parseResult.result.success) return pathTemplate;
 
